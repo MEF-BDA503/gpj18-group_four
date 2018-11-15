@@ -1,0 +1,6 @@
+theme: jekyll-theme-slate
+title: group_fouR
+description: MEF University - BDA 503 - Fall 2018 Project
+
+encoding: UTF-8
+exclude: ["*.Rmd"] 
