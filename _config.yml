@@ -1,1 +1,6 @@
 theme: jekyll-theme-cayman
+title: GroupFou*R* Progress Journal
+description: MEF University - Fall 2018 BDA 503 Term Project
+
+encoding: UTF-8
+exclude: ["*.Rmd"] 
