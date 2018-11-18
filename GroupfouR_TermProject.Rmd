@@ -1,0 +1,93 @@
+---
+title: "GroupfouRTermProject"
+output: html_document
+---
+
+Firstly, load the required packages
+
+```{r, warning=FALSE}
+
+library(tidyverse)
+library(tidyverse)
+library(readxl)
+library(dplyr)
+
+```
+
+We exported 40 files from TradeMap.org website consisting of import and export statistics of Turkey in terms of total value and quantity per product group against the G7 countries (Germany, USA, UK, France, Italy, Japan and Canada) + 3 big economies namely Russia, India and India. 
+
+In order analyse, we should merge this files to create two data tables - one for import dataset and one for export dataset.
+
+Firstly, we are merging the Turkey's import data by quantity against all 10 selected countries :
+
+```{r}
+PATH <-"C:/Users/avs1400/Desktop/master/DataAnEssR_503/odev"
+
+rm(Quantdataset)
+rm(Valuedataset)
+rm(jTable)
+ 
+nm <- list.files(path = PATH, pattern = '*.mport.*uant.*')
+for (file in nm){
+  
+  # if the merged dataset doesn't exist, create it
+  if (!exists("Quantdataset")){
+    Quantdataset <- read_excel(file, col_names=FALSE, skip=1)
+  }
+  else{
+    temp_dataset <-read_excel(file, col_names=FALSE, skip=1)
+    Quantdataset<-rbind(Quantdataset, temp_dataset)
+    rm(temp_dataset)
+  }
+  
+}
+
+```
+
+After merging, naming the columns:
+
+```{r}
+ 
+colnames(Quantdataset) <- c("Country","Product_Code","Product_Label","2013_Quantity","Unit1","2014_Quantity","Unit2","2015_Quantity","Unit3","2016_Quantity","Unit4","2017_Quantity","Unit5")
+ 
+```
+
+Then, merging the the Turkey's import data by value against all 10 selected countries :
+
+```{r}
+nm <- list.files(path = PATH, pattern = '*.mport.*alu.*')
+#rm(Valuedataset)
+ 
+for (file in nm){
+  
+  # if the merged dataset doesn't exist, create it
+  if (!exists("Valuedataset")){
+    Valuedataset <- read_excel(file, col_names=FALSE, skip=1)
+  }
+  else{
+    temp_dataset <-read_excel(file, col_names=FALSE, skip=1)
+    Valuedataset<-rbind(Valuedataset, temp_dataset)
+    rm(temp_dataset)
+  }
+  
+}
+```
+
+And, naming the columns:
+
+```{r}
+colnames(Valuedataset) <- c("Country","Product_Code","Product_Label","2013_Value","2014_Value","2015_Value","2016_Value","2017_Value")
+```
+
+Now, we can full-join Turkey's import data by quantity and value: 
+
+```{r}
+
+jTable <- Quantdataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, "2013_Quantity", "2014_Quantity","2015_Quantity","2016_Quantity","2017_Quantity") %>% 
+  full_join(Valuedataset,by = c("Country","Product_Code"))  
+
+```
+
+
