@@ -91,6 +91,8 @@ import_jTable <- import_quantity_dataset %>%
 #import_jTable <- import_jTable %>% filter(Country!= ) 
 import_jTable <- import_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
 import_jTable <- left_join(import_jTable,prdCode,by =c("PcodeTwo"="Product_Code") )
+import_jTable <- import_jTable %>% filter(Value_2013>0 | Value_2014>0 | Value_2015>0 | Value_2016>0 | Value_2017>0) 
+
 import_jTable <- import_jTable %>% group_by(Country,Unit,PcodeTwo,Product_Label.y) %>% summarise(Quantity_2013=sum(Quantity_2013), Quantity_2014=sum(Quantity_2014), 
                                                    Quantity_2015=sum(Quantity_2015), Quantity_2016=sum(Quantity_2016), 
                                                    Quantity_2017=sum(Quantity_2017), Value_2013=sum(Value_2013), 
@@ -170,7 +172,8 @@ ui <- fluidPage(
    sidebarLayout(
       sidebarPanel(
         selectInput(inputId =  "country", label = "Country:", choices = c("All", countries)),          
-         selectInput(inputId =  "products", label = "Products:", choices = c("All", products)) 
+        selectInput(inputId =  "products", label = "Products:", choices = c("All", products)),
+        sliderInput( "year", "Year:",min = 2013,max = 2017,value = 2015 )
         
       ),
       
@@ -195,12 +198,16 @@ server <- function(input, output) {
 #     modified_data <- importValues %>% filter(year >= input$years[1] & year <= input$years[2] )
      modified_data <- importValues #%>% filter(year >= input$years[1] & year <= input$years[2] )     
      if(input$country != "All"){
-       modified_data <- importValues %>% filter(Country==input$country)
+       modified_data <- modified_data %>% filter(Country==input$country)
      }
      if(input$products != "All"){
        modified_data <- modified_data %>% filter(Product_Label.y==input$products)
      }
+     
+     modified_data <- modified_data %>% filter(year==input$year)
+     
      ggplot(modified_data,aes(x=year,y=Values)) + geom_bar(stat = "identity")
+     ggplot(modified_data,aes(x=Country,y=Values)) + geom_bar(stat = "identity")
      
    })
 }
