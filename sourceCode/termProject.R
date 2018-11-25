@@ -13,11 +13,14 @@ library(dplyr)
 library(readxl)
 library(leaflet)
 
-set.seed(61)
 
 
-PATH <-"C:/Users/avs1400/Desktop/master/DataAnEssR_503/odev"
+
+#PATH <-"C:/Users/avs1400/Desktop/master/DataAnEssR_503/odev"
+PATH <-"C:/Users/avs1400/Documents/GitHub/gpj18-group_four/gpj18-group_four/Raw Data"
+
 setwd(PATH)
+
 
 
 getDataSet <- function(pPattern){
@@ -59,6 +62,10 @@ if (exists("export_jTable")){
   rm("export_jTable")
 }
 
+file = "C:/Users/avs1400/Documents/GitHub/gpj18-group_four/gpj18-group_four/2digitproductlist.xlsx"
+prdCode <- read_excel(file, col_names=FALSE, skip=1)
+prdCode$X__1 <- gsub("'", "", prdCode$X__1)
+
 import_quantity_dataset <- getDataSet('*.mport.*uant.*')
 import_value_dataset <- getDataSet('*.mport.*alu.*')
 export_quantity_dataset <- getDataSet('*.xport.*uant.*')
@@ -78,11 +85,15 @@ import_jTable <- import_quantity_dataset %>%
   mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
   select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014,Quantity_2015,Quantity_2016,Quantity_2017) %>% 
   full_join(import_value_dataset,by = c("Country","Product_Code"))  
-
+import_jTable <- import_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+import_jTable <- left_join(import_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+  
 export_jTable <- export_quantity_dataset %>% 
   mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
   select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014,Quantity_2015,Quantity_2016,Quantity_2017) %>% 
   full_join(export_value_dataset,by = c("Country","Product_Code"))  
+export_jTable <- export_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+export_jTable <- left_join(export_jTable,prdCode,by =c("PcodeTwo"="X__1") )
 
 countries <- 
   import_jTable %>% 
