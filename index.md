@@ -279,6 +279,7 @@ After joining these data tables, and cleaning unnecessary columns; finally we ha
 <th align="left">X__2</th>
 </tr>
 </thead>
+</table>
 
 
 
