@@ -19,40 +19,13 @@ Through the analysis and visualization of the data, our object is to use explana
 
 ***
 ### A Summary of the Data and Explanations       
-Following the extraction from source (Trademap.org), our raw data consist of 10 countries' trade data against Turkey. This data splits to 2 with trade direction as "Export" and "Import". The other dimension is stat for trade, one is "Quantity" of Export/Import, the other is "Value" in billion USD of Export/Import. Therefore we have four main table for each country.
+We have two type of data that we can obtain from Trademap.org web site. Export and Import Data about Turkey trade.
+Therefore we have two main table for ten important country Import and Export tables. Trademap.org obtains Import data to Turkey from other country and Export from Turkey to other country data. For each country of ten we have four excel data.
 
-
-<table>
-<thead>
-<tr class="header">
-<th align="left">Data Frame</th>
-<th align="left">DF Definition</th>
-</tr>
-</thead>
-
-<tbody>
-<tr class="odd">
-<td align="left">ExportValues</td>
-<td align="left">Export from Turkey to target countries and their values in billion USD</td>
-</tr>
-<tr class="odd">
-<td align="left">ExportQuantity</td>
-<td align="left">Export from Turkey to target countries and their quantities in units(tons,gallons etc)</td>
-</tr>
-<tr class="odd">
-<td align="left">ImportValues</td>
-<td align="left">Import to Turkey from target counties and their values in billion USD</td>
-</tr>
-<tr class="odd">
-<td align="left">ImportQuantity</td>
-<td align="left">Import to Turkey from target counties and their quantities in units(tons,gallons etc)</td>
-</tr>
-  
-</tbody>
-</table> 
-
-
-Table structures for "Quantity" and "Value" files are as follows:
+Import Values in billion Usd
+Import Quantity in units(tons,galoons etc.) 
+Export Values in billion Usd
+Export Quantity in units(tons,galoons etc.) 
 
 
 <table>
@@ -124,7 +97,7 @@ Table 1: Quantity excel table structure
 
 Table 2: Values excel table structure
 
-In addition to main raw data, we also have look-up table for product codes; This lookup table registers product labels in 2 digit code that is less categorized than main data.
+Finally we have a product look-up table; contains unique product codes and labels.
 
 <table>
 <thead>
@@ -157,134 +130,217 @@ In addition to main raw data, we also have look-up table for product codes; This
 
 Table 3: Product look-up excel table
 
-
-Regarding the variables included in these tables; definitions are as follows:  
+As a result for the aim of Turkey import/export and current account deficit analysis we have forty one excel table.
+We aimed to design a simple and to do point final data model with data frames. These are main entities. Their list and puposes are below:
 
 <table>
 <thead>
 <tr class="header">
-<th align="center" colspan="2">ExportQuantity & ImportQuantity</th>
+<th align="left">Data Frame</th>
+<th align="left">DF Definition</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">ExportValues</td>
+<td align="left">Export from Turkey to other counties and their values in USD</td>
+</tr>
+<tr class="odd">
+<td align="left">ExportQuantity</td>
+<td align="left">Export from Turkey to other counties and their quantities in units(tons,gallons etc)</td>
+</tr>
+<tr class="odd">
+<td align="left">ImportValues</td>
+<td align="left">Import to Turkey from other counties and their values in USD</td>
+</tr>
+<tr class="odd">
+<td align="left">ImportQuantity</td>
+<td align="left">Import to Turkey from other counties and their quantities in units(tons,gallons etc)</td>
+</tr>
+  
+</tbody>
+</table>
+
+Also main data frames (entities) fields and and their meanings are below. 
+
+<table>
+<thead>
+<tr class="header">
+<th align="center" colspan="2">ExportQuantity</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">Country</td>
-<td align="left">Trade Partner of Turkey</td>
+<td align="left">Export Country</td>
 </tr>
 <tr class="odd">
 <td align="left">Product_Code</td>
-<td align="left">Traded Product Code in 4 digit</td>
+<td align="left">Exported Product Code</td>
 </tr>
 <tr class="odd">
 <td align="left">Product_Label</td>
-<td align="left">Product Definition</td>
+<td align="left">Definition about exported product</td>
 </tr>  
 <tr class="odd">
 <td align="left">Unit</td>
-<td align="left">Metric of Quantity</td>
+<td align="left">Exported product unit</td>
 </tr>
 <tr class="odd">
 <td align="left">Quantity_2013</td>
-<td align="left">Export or Import quantity in 2013</td>
+<td align="left">Export quantity in unit 2013</td>
 </tr>
 <tr class="odd">
 <td align="left">Quantity_2014</td>
-<td align="left">Export or Import quantity in 2014</td>
+<td align="left">Export quantity in unit 2014</td>
 </tr>
 <tr class="odd">
 <td align="left">Quantity_2015</td>
-<td align="left">Export or Import quantity in 2015</td>
+<td align="left">Export quantity in unit 2015</td>
 </tr>
 <tr class="odd">
 <td align="left">Quantity_2016</td>
-<td align="left">Export or Import quantity in 2016</td>
+<td align="left">Export quantity in unit 2016</td>
 </tr>
 <tr class="odd">
 <td align="left">Quantity_2017</td>
-<td align="left">Export or Import quantity in 2017</td>
+<td align="left">Export quantity in unit 2017</td>
 </tr>  
 </tbody>
 </table>
 
-
-
 <table>
 <thead>
 <tr class="header">
-<th align="center" colspan="2">ExportValues & ImportValues</th>
+<th align="center" colspan="2">ExportValues</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">Country</td>
-<td align="left">Trade Partner of Turkey</td>
+<td align="left">Export Country</td>
 </tr>
 <tr class="odd">
 <td align="left">Product_Code</td>
-<td align="left">Traded Product Code in 4 digit</td>
+<td align="left">Exported Product Code</td>
 </tr>
 <tr class="odd">
 <td align="left">Product_Label</td>
-<td align="left">Product Definition</td>
+<td align="left">Definition about exported product</td>
 </tr>  
 <tr class="odd">
 <td align="left">Value_2013</td>
-<td align="left">Export or Import value in 2013</td>
+<td align="left">Export value in million USD at year 2013</td>
 </tr>
 <tr class="odd">
 <td align="left">Value_2014</td>
-<td align="left">Export or Import value in 2014</td>
+<td align="left">Export value in million USD at year 2014</td>
 </tr>
 <tr class="odd">
 <td align="left">Value_2015</td>
-<td align="left">Export or Import value in 2015</td>
+<td align="left">Export value in million USD at year 2015</td>
 </tr>
 <tr class="odd">
 <td align="left">Value_2016</td>
-<td align="left">Export or Import value in 2016</td>
+<td align="left">Export value in million USD at year 2016</td>
 </tr>
 <tr class="odd">
 <td align="left">Value_2017</td>
-<td align="left">Export or Import value in 2017</td>
+<td align="left">Export value in million USD at year 2017</td>
 </tr>
+  
 </tbody>
 </table>
-
-
-Quantity and Value data tables have relation with each other via two fields: Country and ProductCode
-
-
-After joining these data tables, and cleaning unnecessary columns; finally we have Export data of Turkey as quantity and value and Import data of Turkey as quantity and value in same structure. 
-
 
 <table>
 <thead>
 <tr class="header">
-<th align="left">Country</th>
-<th align="left">Product code</th>
-<th align="left">Unit</th>
-<th align="left">Product label</th>
-<th align="left">Quantity_2013</th>
-<th align="left">Quantity_2014</th>
-<th align="left">Quantity_2015</th>
-<th align="left">Quantity_2016</th>
-<th align="left">Quantity_2017</th>
-<th align="left">Product_Label</th>
-<th align="left">Value_2013</th>
-<th align="left">Value_2014</th>
-<th align="left">Value_2015</th>
-<th align="left">Value_2016</th>
-<th align="left">Value_2017</th>
-<th align="left">PcodeTwo</th>
-<th align="left">X__2</th>
+<th align="center" colspan="2">ImportQuantity</th>
 </tr>
 </thead>
+<tbody>
+<tr class="odd">
+<td align="left">Country</td>
+<td align="left">Import Country</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Code</td>
+<td align="left">Imported Product Code</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Label</td>
+<td align="left">Definition about Imported product</td>
+</tr>  
+<tr class="odd">
+<td align="left">Unit</td>
+<td align="left">Imported product unit</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2013</td>
+<td align="left">Import quantity in unit 2013</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2014</td>
+<td align="left">Import quantity in unit 2014</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2015</td>
+<td align="left">Import quantity in unit 2015</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2016</td>
+<td align="left">Import quantity in unit 2016</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2017</td>
+<td align="left">Import quantity in unit 2017</td>
+</tr>  
+</tbody>
 </table>
 
+<table>
+<thead>
+<tr class="header">
+<th align="center" colspan="2">ImportValues</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Country</td>
+<td align="left">Import Country</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Code</td>
+<td align="left">Imported Product Code</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Label</td>
+<td align="left">Definition about Imported product</td>
+</tr>  
+<tr class="odd">
+<td align="left">Value_2013</td>
+<td align="left">Import value in million USD at year 2013</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2014</td>
+<td align="left">Import value in million USD at year 2014</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2015</td>
+<td align="left">Import value in million USD at year 2015</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2016</td>
+<td align="left">Import value in million USD at year 2016</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2017</td>
+<td align="left">Import value in million USD at year 2017</td>
+</tr>
+  
+</tbody>
+</table>
 
-
-Both of the export table and import table have 16 variables and 12,220 observations.
-
-
-Country, Product_Code, Unit, Product_Label, PcodeTwo and X__2 variables are string while remaining variables are numeric.
-
+These entities have relation with each other via two fields : Country and ProductCode
+We produced this main entities after loading excel files, making some data cleansing operations. This data saved in RDS format and in project  git repository.
