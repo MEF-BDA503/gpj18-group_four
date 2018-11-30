@@ -207,6 +207,7 @@ Regarding the variables included in these tables; definitions are as follows:
 </table>
 
 
+
 <table>
 <thead>
 <tr class="header">
@@ -278,6 +279,8 @@ After joining these data tables, and cleaning unnecessary columns; finally we ha
 <th align="left">X__2</th>
 </tr>
 </thead>
+
+
 
 Both of the export table and import table have 16 variables and 12,220 observations.
 
