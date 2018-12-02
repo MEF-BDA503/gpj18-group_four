@@ -14,12 +14,17 @@ library(readxl)
 library(leaflet)
 library(reshape2)
 
-PATH <- "C:/Users/avs1400/Documents/GitHub/gpj18-group_four/gpj18-group_four/"
+#PATH <- "C:/Users/avs1400/Documents/GitHub/gpj18-group_four/gpj18-group_four/"
+#githubURL_export <-  paste(PATH , "export_jTable.rds", sep="")             #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTable.rds?raw=true")
+#githubURL_import <- paste(PATH ,   "import_jTable.rds", sep="")              #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTable.rds?raw=true")
+#githubURL_exportMELTED <- paste(PATH , "export_jTableMELTED.rds", sep="")    #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTableMELTED.rds?raw=true")
+#githubURL_importMELTED <- paste(PATH , "import_jTableMELTED.rds", sep="")    #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTableMELTED.rds?raw=true")
 
-githubURL_export <-  paste(PATH , "export_jTable.rds", sep="")             #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTable.rds?raw=true")
-githubURL_import <- paste(PATH ,   "import_jTable.rds", sep="")              #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTable.rds?raw=true")
-githubURL_exportMELTED <- paste(PATH , "export_jTableMELTED.rds", sep="")    #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTableMELTED.rds?raw=true")
-githubURL_importMELTED <- paste(PATH , "import_jTableMELTED.rds", sep="")    #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTableMELTED.rds?raw=true")
+
+githubURL_export <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTable.rds?raw=true")
+githubURL_import <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTable.rds?raw=true")
+githubURL_exportMELTED <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTableMELTED.rds?raw=true")
+githubURL_importMELTED <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTableMELTED.rds?raw=true")
 
 #export_jTable<- readRDS(url(githubURL_export))
 #import_jTable<- readRDS(url(githubURL_import))
