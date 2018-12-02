@@ -287,4 +287,5 @@ Both of the export table and import table have 16 variables and 12,220 observati
 
 
 Country, Product_Code, Unit, Product_Label, PcodeTwo and X__2 variables are string while remaining variables are numeric.
+PcodeTwo is two digit product and X__2 is a summary label for product definition.
 
