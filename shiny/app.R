@@ -14,11 +14,15 @@ library(readxl)
 library(leaflet)
 library(reshape2)
 
-#PATH <- "C:/Users/avs1400/Documents/GitHub/gpj18-group_four/gpj18-group_four/"
+#PATH <- "C:/Users//Documents/GitHub/gpj18-group_four/gpj18-group_four/"
 #githubURL_export <-  paste(PATH , "export_jTable.rds", sep="")             #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTable.rds?raw=true")
 #githubURL_import <- paste(PATH ,   "import_jTable.rds", sep="")              #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTable.rds?raw=true")
 #githubURL_exportMELTED <- paste(PATH , "export_jTableMELTED.rds", sep="")    #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTableMELTED.rds?raw=true")
 #githubURL_importMELTED <- paste(PATH , "import_jTableMELTED.rds", sep="")    #("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTableMELTED.rds?raw=true")
+#export_jTable<- readRDS((githubURL_export))
+#import_jTable<- readRDS((githubURL_import))
+#export_jTableMELTED<- readRDS((githubURL_exportMELTED))
+#import_jTableMELTED<- readRDS((githubURL_importMELTED))
 
 
 githubURL_export <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTable.rds?raw=true")
@@ -26,15 +30,11 @@ githubURL_import <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master
 githubURL_exportMELTED <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTableMELTED.rds?raw=true")
 githubURL_importMELTED <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTableMELTED.rds?raw=true")
 
-#export_jTable<- readRDS(url(githubURL_export))
-#import_jTable<- readRDS(url(githubURL_import))
-#export_jTableMELTED<- readRDS(url(githubURL_exportMELTED))
-#import_jTableMELTED<- readRDS(url(githubURL_importMELTED))
+export_jTable<- readRDS(url(githubURL_export))
+import_jTable<- readRDS(url(githubURL_import))
+export_jTableMELTED<- readRDS(url(githubURL_exportMELTED))
+import_jTableMELTED<- readRDS(url(githubURL_importMELTED))
 
-export_jTable<- readRDS((githubURL_export))
-import_jTable<- readRDS((githubURL_import))
-export_jTableMELTED<- readRDS((githubURL_exportMELTED))
-import_jTableMELTED<- readRDS((githubURL_importMELTED))
 
 rm(githubURL_export)
 rm(githubURL_import)
@@ -123,21 +123,23 @@ server <- function(input, output) {
      
      #ggplot(modified_dataImp,aes(x=Country,y=Values)) + geom_bar(stat = "identity")
      ggplot(modified_all,aes(x=Country,y=Values,fill=type))+
-       geom_bar(stat="identity", position=position_dodge())
+       geom_bar(stat="Identity", position=position_dodge())
      
         })
    
    output$distPlot2 <- renderPlot({
-     modified_data <- import_jTableMELTED
+     modified_dataImp <- import_jTableMELTED
+     modified_dataExp <- export_jTableMELTED
+     modified_all  <- allMelted
+     
      if(input$country != "All"){
-       modified_data <- modified_data %>% filter(Country==input$country)
+       modified_all <- modified_all %>% filter(Country==input$country)
      }
      if(input$products != "All"){
-       modified_data <- modified_data %>% filter(X__2==input$products)
+       modified_all <- modified_all %>% filter(X__2==input$products)
      }
      
-     #modified_data <- modified_data %>% filter(year==input$year)
-     ggplot(modified_data,aes(x=year,y=Values,color=Country)) + geom_point()
+     ggplot(modified_all,aes(x=year,y=Values,fill=type)) + geom_bar(stat="Identity", position=position_dodge())
      
      
    })
