@@ -47,10 +47,13 @@ table <- full_join(tableExport,tableImport) %>%
 
 ggplot(table, aes(x=year)) +
   geom_point(aes(y=value, color=Country, shape=variable), size=4) + 
+  facet_grid(~variable) +
    labs(title="YoY Total Value Change",
     x="Year",
     y="% Change in  Value",
     shape=c("Trade Type"))
+    
+
 
 
 
@@ -63,19 +66,21 @@ summarytableCanada <- export_jTableMELTED %>%
   arrange(X__2, year) %>%
   mutate(ExpPercChngYoY = (ExportValue - lag(ExportValue))/lag(ExportValue)*100) %>%
   mutate(ExpChngYoy=((ExportValue - lag(ExportValue)))) %>%
-  filter(year!=2013)
-
+  filter(year!=2013) #%>%
+  #filter(abs(ExpChngYoy)>10000) 
+  
 
 ggplot(summarytableCanada, aes(x=X__2)) +
   geom_point(aes(y=ExpChngYoy, color=year), size=4) + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
   labs(title="YoY Total Value Change",
        x="Product Group",
        y="Change in Export Value",
        Color=c("Year"))
 
-summarytableCanada2 <- summarytableCanada %>%
-  arrange(desc(ExpChngYoy)) %>%
-  filter(t
+
+
 
 
