@@ -1,5 +1,5 @@
 ---
-title: "Group Fou*R* Term Project Proposal"
+title: "Group Fou\\*R* Term Project Proposal"
 subtitle: "MEF University - BDA 503 Essentials of Data Analytics - Fall 2018"
 output: html_document
 ---
