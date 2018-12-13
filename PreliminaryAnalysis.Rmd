@@ -1,0 +1,428 @@
+---
+title: "Group Fou\\*R* Term Project - Summary of Raw Data, Explanations and Preliminary Analysis"
+subtitle: "MEF University - BDA 503 Essentials of Data Analytics - Fall 2018"
+date: "December 2018"
+output: html_document
+---
+## Explanatory Data Analysis of Trade Statistics of Turkey
+
+### Abstract 
+
+We worked on trade statistics data of Turkey against the G7 countries and 3 more countries (Russia, India, China) both for export and import.Our aim is to analyze Turkey’s trade characteristics by product groups. Within this aim, we take trade values and quantities by product groups in MS Excel file format from trademap.org website for each trade partner country for the period of 2013 - 2017. 
+In this study, We applied data manipulation to make it proper for analysis and explanatory data analysis with visulations and conclude with overall statistical overview of Turkey's trade.     
+
+### Explanation of Raw Data
+
+Following the extraction from source (Trademap.org), our raw data consist of 10 countries’ trade data against Turkey. This data splits to 2 with trade direction as “Export” and “Import”. The other dimension is stat for trade, one is “Quantity” of Export/Import, the other is “Value” in billion USD of Export/Import. Therefore we have four main data frame for each country (total of 40 excel files).
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Data Frame</th>
+<th align="left">DF Definition</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">ExportValues</td>
+<td align="left">Export from Turkey to target countries and their values in billion USD</td>
+</tr>
+<tr class="odd">
+<td align="left">ExportQuantity</td>
+<td align="left">Export from Turkey to target countries and their quantities in units(tons,gallons etc)</td>
+</tr>
+<tr class="odd">
+<td align="left">ImportValues</td>
+<td align="left">Import to Turkey from target counties and their values in billion USD</td>
+</tr>
+<tr class="odd">
+<td align="left">ImportQuantity</td>
+<td align="left">Import to Turkey from target counties and their quantities in units(tons,gallons etc)</td>
+</tr>
+  
+</tbody>
+</table> 
+
+
+
+
+Table structures for "Quantity" and "Value" files are as follows:
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Country</th>
+<th align="left">Product code</th>
+<th align="left">Product label</th>
+<th align="left">Quantity in 2013</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2014</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2015</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2016</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2017</th>
+<th align="left">Unit</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">France</td>
+<td align="left">'0306</td>
+<td align="left">Crustaceans, whether in shell or not, live, fresh, chilled, frozen, dried, salted or in brine, ...</td>
+<td align="left">121</td>
+<td align="left">Tons</td>
+<td align="left">139</td>
+<td align="left">Tons</td>
+<td align="left">22</td>
+<td align="left">Tons</td>
+<td align="left">24</td>
+<td align="left">Tons</td>
+
+</tr>
+</tbody>
+</table>
+			 	 		 	 
+Table 1: Quantity excel table structure
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Country</th>
+<th align="left">Product code</th>
+<th align="left">Product label</th>
+<th align="left">Value in 2013</th>
+<th align="left">Value in 2014</th>
+<th align="left">Value in 2015</th>
+<th align="left">Value in 2016</th>
+<th align="left">Value in 2017</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">France</td>
+<td align="left">'0306</td>
+<td align="left">Crustaceans, whether in shell or not, live, fresh, chilled, frozen, dried, salted or in brine, ...</td>
+<td align="left">0</td>
+<td align="left">1155</td>
+<td align="left">1182</td>
+<td align="left">270</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+
+Table 2: Values excel table structure
+
+In addition to main raw data, we also have look-up table for product codes; This lookup table registers product labels in 2 digit code that is less categorized than main data.
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Product code</th>
+<th align="left">Product label</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">'01</td>
+<td align="left">Live animals</td>
+</tr>
+<tr class="odd">
+<td align="left">'02</td>
+<td align="left">Meat and edible meat offal</td>
+</tr>
+<tr class="odd">
+<td align="left">'03</td>
+<td align="left">Fish and crustaceans, molluscs and other aquatic invertebrates</td>
+</tr>
+<tr class="odd">
+<td align="left">'04</td>
+<td align="left">Dairy produce; birds' eggs; natural honey; edible products of animal origin, not elsewhere ...</td>
+</tr>
+  
+</tbody>
+</table>
+
+Table 3: Product look-up excel table
+
+
+Regarding the variables included in these tables; definitions are as follows:  
+
+<table>
+<thead>
+<tr class="header">
+<th align="center" colspan="2">ExportQuantity & ImportQuantity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Country</td>
+<td align="left">Trade Partner of Turkey</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Code</td>
+<td align="left">Traded Product Code in 4 digit</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Label</td>
+<td align="left">Product Definition</td>
+</tr>  
+<tr class="odd">
+<td align="left">Unit</td>
+<td align="left">Metric of Quantity</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2013</td>
+<td align="left">Export or Import quantity in 2013</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2014</td>
+<td align="left">Export or Import quantity in 2014</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2015</td>
+<td align="left">Export or Import quantity in 2015</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2016</td>
+<td align="left">Export or Import quantity in 2016</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2017</td>
+<td align="left">Export or Import quantity in 2017</td>
+</tr>  
+</tbody>
+</table>
+
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="center" colspan="2">ExportValues & ImportValues</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Country</td>
+<td align="left">Trade Partner of Turkey</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Code</td>
+<td align="left">Traded Product Code in 4 digit</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Label</td>
+<td align="left">Product Definition</td>
+</tr>  
+<tr class="odd">
+<td align="left">Value_2013</td>
+<td align="left">Export or Import value in 2013</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2014</td>
+<td align="left">Export or Import value in 2014</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2015</td>
+<td align="left">Export or Import value in 2015</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2016</td>
+<td align="left">Export or Import value in 2016</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2017</td>
+<td align="left">Export or Import value in 2017</td>
+</tr>
+</tbody>
+</table>
+
+
+
+### Data Preparation, cleaning and Manipulation
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(shiny)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(leaflet)
+```
+
+
+In order to read these excel files, firstly we create a function named "getDataSet":
+
+
+```{r, warning=FALSE}
+
+PATH <-"C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/Raw Data"
+setwd(PATH)
+
+getDataSet <- function(pPattern){
+  nm <- list.files(path = PATH, pattern = pPattern)  
+  if (exists("resultDataset")){
+    rm("resultDataset")
+  }
+  for (file in nm){
+    if (!exists("resultDataset")){
+      resultDataset <- read_excel(file, col_names=FALSE, skip=1)
+    }
+    else{
+      temp_dataset <-read_excel(file, col_names=FALSE, skip=1)
+      resultDataset<-rbind(resultDataset, temp_dataset)
+      rm(temp_dataset)
+    }
+    
+  }
+  return(resultDataset)
+  
+}
+
+
+import_quantity_dataset <- getDataSet('*.mport.*uant.*')
+import_value_dataset <- getDataSet('*.mport.*alu.*')
+export_quantity_dataset <- getDataSet('*.xport.*uant.*')
+export_value_dataset <- getDataSet('*.xport.*alu.*')
+
+colnames(import_quantity_dataset) <- c("Country","Product_Code","Product_Label","Quantity_2013","Unit1","Quantity_2014","Unit2","Quantity_2015","Unit3","Quantity_2016","Unit4","Quantity_2017","Unit5")
+colnames(import_value_dataset) <- c("Country","Product_Code","Product_Label","Value_2013","Value_2014","Value_2015","Value_2016","Value_2017")
+colnames(export_quantity_dataset) <- c("Country","Product_Code","Product_Label","Quantity_2013","Unit1","Quantity_2014","Unit2","Quantity_2015","Unit3","Quantity_2016","Unit4","Quantity_2017","Unit5")
+colnames(export_value_dataset) <- c("Country","Product_Code","Product_Label","Value_2013","Value_2014","Value_2015","Value_2016","Value_2017")
+
+import_quantity_dataset$Product_Code<- gsub("'", "", import_quantity_dataset$Product_Code)
+import_value_dataset$Product_Code<- gsub("'", "",import_value_dataset$Product_Code)
+export_quantity_dataset$Product_Code<- gsub("'", "",export_quantity_dataset$Product_Code)
+export_value_dataset$Product_Code<- gsub("'", "",export_value_dataset$Product_Code)
+
+
+```
+
+And by using the getDataSet function, we merged the Turkey's export-quantity, export-value, import-quantity, import-value tables for 10 selected countries.
+
+
+```{r}
+glimpse(export_quantity_dataset)
+glimpse(export_value_dataset)
+glimpse(import_quantity_dataset)
+glimpse(import_value_dataset)
+```
+
+We have 13 and 8 variables in quantity and value tables respectively both for export and import.
+
+Now, it is time to join quantity and value data for both export and import files. While joining the tables, we should also clear the repetitive variable "Unit" for each year.
+
+Also, we need to join product labels in 2 digit product codes to 4 digit product codes and labels. 
+
+
+```{r, warning=FALSE}
+#read the ProductCodes excel
+file = "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/2digitproductlist.xlsx"
+prdCode <- read_excel(file, col_names=FALSE, skip=1)
+prdCode$X__1 <- gsub("'", "", prdCode$X__1)
+
+# join the import values and quantities
+import_jTable <- import_quantity_dataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014, Quantity_2015, Quantity_2016, Quantity_2017) %>% 
+  full_join(import_value_dataset,by = c("Country","Product_Code"))  
+# seperate the first 2 digits of 4 digit product code and join the 2digit product code excel 
+import_jTable <- import_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+import_jTable <- left_join(import_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+  
+# join the export values and quantities
+export_jTable <- export_quantity_dataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014,Quantity_2015,Quantity_2016,Quantity_2017) %>% 
+  full_join(export_value_dataset,by = c("Country","Product_Code"))  
+# seperate the first 2 digits of 4 digit product code and join the 2digit product code excel
+export_jTable <- export_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+export_jTable <- left_join(export_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+
+```
+
+Now we have joined tables for import and export stats of Turkey.
+
+```{r}
+glimpse(import_jTable)
+glimpse(export_jTable)
+```
+
+Both tables now have 16 variables and 12,223 rows.
+
+But there is a row in Product_Code column as "TOTAL", we must clear it.
+
+```{r}
+export_jTable <- export_jTable %>% filter(!grepl("TOTAL", Product_Code))
+import_jTable <- import_jTable %>% filter(!grepl("TOTAL", Product_Code))
+```
+
+We have 16 variables in these tables however quantity and value variables repeat for each year. So actually, it is better to organize the table that it will have variables "Year", "Quantity", "Value" instead of 10 columns.
+
+
+```{r}
+#create new objects for each years' quantity
+q2013<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2013) %>% mutate(year="2013") %>% rename("Quantity"=Quantity_2013)
+q2014<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2014) %>% mutate(year="2014") %>% rename("Quantity"=Quantity_2014)
+q2015<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2015) %>% mutate(year="2015") %>% rename("Quantity"=Quantity_2015)
+q2016<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2016) %>% mutate(year="2016") %>% rename("Quantity"=Quantity_2016) 
+q2017<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2017) %>% mutate(year="2017") %>% rename("Quantity"=Quantity_2017)
+
+#bind the objects
+importQuant <- bind_rows(q2013,q2014,q2015,q2016,q2017)
+
+#create new objects for each years' values
+v2013<-import_jTable %>% select(Country,Product_Code, Value_2013) %>% rename("Values"=Value_2013) %>% mutate(year="2013")
+v2014<-import_jTable %>% select(Country,Product_Code, Value_2014) %>% rename("Values"=Value_2014) %>% mutate(year="2014")
+v2015<-import_jTable %>% select(Country,Product_Code, Value_2015) %>% rename("Values"=Value_2015) %>% mutate(year="2015")
+v2016<-import_jTable %>% select(Country,Product_Code, Value_2016) %>% rename("Values"=Value_2016) %>% mutate(year="2016") 
+v2017<-import_jTable %>% select(Country,Product_Code, Value_2017) %>% rename("Values"=Value_2017) %>% mutate(year="2017")
+
+#bind the objects
+importValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
+
+#join binded quantity and value
+import_jTableMELTED <- importQuant %>% left_join(importValues, by=c("Country","Product_Code","year"))
+
+
+#Repeat with export table
+
+q2013<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2013) %>% mutate(year="2013") %>% rename("Quantity"=Quantity_2013)
+q2014<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2014) %>% mutate(year="2014") %>% rename("Quantity"=Quantity_2014)
+q2015<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2015) %>% mutate(year="2015") %>% rename("Quantity"=Quantity_2015)
+q2016<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2016) %>% mutate(year="2016") %>% rename("Quantity"=Quantity_2016) 
+q2017<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2017) %>% mutate(year="2017") %>% rename("Quantity"=Quantity_2017)
+
+exportQuant <- bind_rows(q2013,q2014,q2015,q2016,q2017)
+
+v2013<-export_jTable %>% select(Country,Product_Code, Value_2013) %>% rename("Values"=Value_2013) %>% mutate(year="2013")
+v2014<-export_jTable %>% select(Country,Product_Code, Value_2014) %>% rename("Values"=Value_2014) %>% mutate(year="2014")
+v2015<-export_jTable %>% select(Country,Product_Code, Value_2015) %>% rename("Values"=Value_2015) %>% mutate(year="2015")
+v2016<-export_jTable %>% select(Country,Product_Code, Value_2016) %>% rename("Values"=Value_2016) %>% mutate(year="2016") 
+v2017<-export_jTable %>% select(Country,Product_Code, Value_2017) %>% rename("Values"=Value_2017) %>% mutate(year="2017")
+
+exportValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
+
+export_jTableMELTED <- exportQuant %>% left_join(exportValues, by=c("Country","Product_Code","year"))
+```
+
+
+Now, we have more useful tables, with 9 variables and 61100 rows.
+
+```{r}
+glimpse(export_jTableMELTED)
+glimpse(import_jTableMELTED)
+```
+
+
+
+
