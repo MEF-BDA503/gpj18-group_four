@@ -20,11 +20,12 @@ rm(githubURL_export)
 rm(githubURL_import)
 rm(githubURL_exportMELTED)
 rm(githubURL_importMELTED)
-
+print("=========")
 unit_price_import <- import_jTableMELTED %>% select(Country,PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity, year, Values) %>% mutate(Unit_Price = Values/Quantity)
+
 unit_price_export <- export_jTableMELTED %>% select(Country,PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity, year, Values) %>% mutate(Unit_Price = Values/Quantity)
 unit_price_import$year <- as.numeric(as.character(unit_price_import$year))
-
+print(unit_price_import)
 
 country <- 
   import_jTableMELTED %>% 
@@ -58,8 +59,8 @@ ui <- fluidPage(
                   min = min(unit_price_import$year),
                   max = max(unit_price_import$year),
                   value = min(unit_price_import$year)),
-      selectInput(inputId =PcodeTwo,label = "Product Code",choices = c("All",PcodeTwo)),
-      checkboxGroupInput(inputId = country, label = "Countries",choices = c("All",country))
+      selectInput(inputId ="PcodeTwo",label = "Product Code",choices = c("All",PcodeTwo)),
+      checkboxGroupInput(inputId = "Country", label = "Countries",choices = c("All",country))
       
     ),
     
@@ -71,17 +72,18 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output,session) {
   
   output$distPlot <- renderPlot({
     modified_data <- unit_price_import #%>% filter(year == input$year & PcodeTwo == input$PcodeTwo)
-    
-    if(input$Country != "All"){
-      modified_data <- modified_data %>% filter(Country ==input$country)
+    print(input$Country)
+    if(input$Country[1] != "All"){
+      modified_data <- modified_data %>% filter(Country %in% input$Country)
     }
     print(modified_data)
-    ggplot(modified_data, aes(x=Country, y= Unit_Price
-    )) + geom_bar(stat="identity")
+    p1 <-
+    ggplot(modified_data, aes(x=Country, y= Unit_Price)) + geom_bar(stat="identity")
+    p1
   })
 }
 
