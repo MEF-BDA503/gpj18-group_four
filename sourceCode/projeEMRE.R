@@ -215,5 +215,5 @@ plotRusIm <- ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 
 
 library(gridExtra)
 
-grid.arrange(plotCanEx, plotCanIm,  nrow = 2)
+grid.arrange(plotCanEx, plotCanIm,  nrow = 1)
 grid.arrange(plotRusEx, plotRusIm,  nrow = 2)

@@ -43,8 +43,8 @@ rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Export_Quantity =
 
 import_Product_Group <- import_jTableMELTED%>%
 group_by(Country,PcodeTwo,X__2,year)%>%
-summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
-rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Quantity = Quantity,Import_Value =Values)
+summarize(Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Value =Values)
 
 Export_Import_JTable <- export_Product_Group %>%
   full_join(import_Product_Group,by=c("Country","Product_Group_Code","Product_Group_Name","year")) %>%
@@ -81,7 +81,6 @@ It is clear that China,Germany and Russia are more effect than others.
 ```{r }
 #Normalized of Average Values for five years
 Normalized_Values_By_Country <- Export_Import_JTable %>%
-  #filter (year == 2017)%>%
   group_by(Country)%>%
   summarize (Net_Value = mean(Export_Value - Import_Value))%>%
   mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
@@ -100,11 +99,22 @@ ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , lab
 ## Most effective products which increase import values
 
 ```{r}
-Import_Value_by_product <- import_Product_Group %>%
-  filter (Country %in% c("China","Germany","Russian"))%>%
-  group_by(Country,Product_Group_Code,Product_Group_Name)%>%
-  summarize (Average_Import_Value = mean(Import_Value))
+Normalized_Values_By_Country <- Export_Import_JTable %>%
+  group_by(Country)%>%
+  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
+  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
+  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
 
+Country_type <- Normalized_Values_By_Country%>%
+   select( Country, value_Net_type)
+
+import_Product_Group  <- import_Product_Group %>%
+left_join(Country_type,value_Net_type,by = "Country") 
+
+Import_Value_by_product <- import_Product_Group %>%
+  filter (value_Net_type == "below" )%>%
+  group_by(Country,Product_Group_Code,Product_Group_Name)%>%
+  summarize (Average_Import_Value = mean(Import_Value)) 
 
 Import_Value_by_product<- Import_Value_by_product %>%
   group_by(Country)%>%
@@ -116,12 +126,11 @@ Import_Value_by_product <- Import_Value_by_product %>%
 
 Import_Value_by_product<- Import_Value_by_product %>%
   group_by(Country) %>% 
-  mutate(Cum_Import_Pct = cumsum(Average_Import_pct)) %>%
-  filter (Cum_Import_Pct <= 70)
+  mutate(Cum_Import_Pct = cumsum(Average_Import_pct)) 
 
 
- 
-  
+
+
 ```
 
 
