@@ -1,0 +1,57 @@
+---
+title: "Turkey Trade Analysis Group Fou\\*R* Project"
+author: "Group Fou\\*R* - BDA 503 - Fall 2018"
+date: "7 December 2018"
+output: 
+  html_document:
+    theme: yeti
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Group Members
+[Büşra Koç](https://mef-bda503.github.io/pj18-busraakoc/) <br>
+[Emre Kemerci](https://mef-bda503.github.io/pj18-EmreKemerci/)<br>
+[Muharrem Çakır](https://mef-bda503.github.io/pj18-muharremcakir81/)<br>
+[Ömer Bayır](https://mef-bda503.github.io/pj18-omerbayir/)<br>
+[Salih Uçar](https://mef-bda503.github.io/pj18-ucarsal/)
+ 	
+## Data
+Turkey's two way trade data between ten important country. The data has been obtained from [www.trademap.org](www.trademap.org) .
+The site gives trade statistics for international business development. Gives import or export values and units yeraly
+or quarterly.
+The countries below choosen:
+
+* Canada
+* China
+* France
+* Germany
+* India
+* Italy
+* Russian
+* UK
+* USA
+* Japan
+
+## Description
+The Global Terrorism Database (GTD) includes information on terrorist events around the World (205 countries, more than 33000 cities, from 1970 through 2016 on at least 45 variables for each case, with more recent incidents including information on more than 120 variables
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
