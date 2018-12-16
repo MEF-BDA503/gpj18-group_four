@@ -1,5 +1,5 @@
 ---
-title: "Group Fou\\*R* Term Project - Summary of Raw Data, Explanations and Preliminary Analysis"
+title: "Group Fou\\*R* Term Project"
 subtitle: "MEF University - BDA 503 Essentials of Data Analytics - Fall 2018"
 date: "December 2018"
 output: html_document
@@ -248,7 +248,7 @@ Regarding the variables included in these tables; definitions are as follows:
 
 
 
-### Data Preparation, cleaning and Manipulation
+### Data Preparation, Cleaning and Manipulation
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -428,24 +428,9 @@ glimpse(export_jTableMELTED)
 glimpse(import_jTableMELTED)
 ```
 
-###Analysis 
+### Analysis 
 
-
-
-
-
-
-
- 
-
-####SALIH
-
-```{r}
-
-
-
-```
-
+#### Breakdown of Total Export and Import of Turkey Over Countries
 
 ```{r}
 ttable1=export_jTableMELTED%>%group_by(Country)%>%
@@ -483,8 +468,9 @@ pie3D(pex1_table$perc_count,labels=lbls_e,main = "Total Percentage Export Per Co
 
 ```
 
+At import side, Turkeys' biggest trade partners are China, Germany, Russia and US while they are Germany, UK, Italy and USA at export side. Germany and USA are the 2 countries exist for both type of trade. 
 
-
+When we breakdown this info to years:
 
 ```{r}
 # Export Values in $ 
@@ -509,195 +495,18 @@ b<-ggplot(data=ttable, aes(x=Country, y=co_total,fill=year)) +
 grid.arrange(a,b,  nrow = 2)
 ```
 
+Except Russia, fluctuates over years are not seem so significant.
 
-
-
-#Import percentage Values in $
-
-pim_table<-vtable%>%filter(year=='2017')%>%
-  mutate(perc_count=co_total/sum((vtable%>%filter(year=='2017'))$co_total)*100)%>%
-  select(Country,year,co_total,perc_count)
-
-ggplot(pim_table, aes(x="", y=perc_count, fill=Country)) + geom_bar(stat="identity", width=1)+
-  coord_polar("y") + geom_text(aes(label = round(perc_count,1), "%"), position = position_stack(vjust = 0.5))+
-  labs(x = NULL, y = NULL, fill = NULL, title = "Percentage of Countries in Import in 2017")+theme_classic()+
-  theme(axis.text = element_blank(),plot.title = element_text(hjust = 0.5, color = "#666666"))
-
-
-####OMER
-
-
-In order to deeply understand the data; we build up shiny app with Country, Product and Year variables. 
+In order to deeply understand the data; we build up shiny app with Country, Product and Year variables to review export and import values. 
 
 Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrg)
 
 
+##### YORUM VE IMAGE EKLENECEK
 
 
+#### Analysis of Year by Year Change in Trade Values
 
-####MUHARREM
-####Analysis of Trade Deficit by Countries and Years  
-
-
-To discovery that country's effects to trade deficit, we calculated net_value which formulated as 'Export_value - Import_value'. And visualized that value on the basis of year.
-
-First, group data; 
-
-```{r }
-export_Product_Group <- export_jTableMELTED%>%
-group_by(Country,PcodeTwo,X__2,year)%>%
-summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
-rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Export_Quantity = Quantity,Export_Value =Values)
-
-import_Product_Group <- import_jTableMELTED%>%
-group_by(Country,PcodeTwo,X__2,year)%>%
-summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
-rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Quantity = Quantity,Import_Value =Values)
-
-Export_Import_JTable <- export_Product_Group %>%
-  full_join(import_Product_Group,by=c("Country","Product_Group_Code","Product_Group_Name","year")) %>%
-mutate(Import_Quantity = replace(Import_Quantity, is.na(Import_Quantity),0),
-        Export_Quantity = replace(Export_Quantity, is.na(Export_Quantity),0))%>%
-select(Country,Product_Group_Code,Product_Group_Name,year,Export_Quantity,Import_Quantity,Export_Value,Import_Value)
-```
-
-Continue with visulation;
-
-```{r}
-####Net Value By Country###
-Net_Value_By_Country <- Export_Import_JTable %>%
-group_by(Country,year)%>%
-summarize (Export_Value = sum(Export_Value), Import_Value = sum(Import_Value), 
-           Net_Value = sum(Export_Value - Import_Value),Net_value_K = round((sum(Export_Value - Import_Value)/1000),digits=0)) 
-
-
-# Total Net Value fiiled with Country on the basis of Year #
-ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) + 
-  geom_bar(stat='identity', aes(fill=Country), width=.6,position = position_stack(reverse = TRUE))  +
-  labs(subtitle="## Total Net Value fiiled with Country on the basis of Year ##", title= "Total Net Values") + 
-  coord_flip()+
-  theme(legend.position = "top")
-```
-
-As seen in the graph, only UK gives trade surplus for all years analysed and China, Russia, Germany and USA have the most significant effect on trade deficit. 
-
-##### An Alternative perspective to explore effects of countries
-
-The effects of countries are changing year by year. So that as an alternative perspective we could average net value for all countries in five years and normalized that value to show which country's effects are more than others.
-
-
-```{r }
-#Normalized of Average Values for five years
-Normalized_Values_By_Country <- Export_Import_JTable %>%
-  #filter (year == 2017)%>%
-  group_by(Country)%>%
-  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
-  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
-  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
-
-#Diverging Bars for normalized_Export_value
-ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , label=normalized_Net_value)) + 
-  geom_bar(stat='identity', aes(fill=value_Net_type), width=.5)  +
-  scale_fill_manual(name="Normalised Value", 
-                    labels = c("Above Average", "Below Average"), 
-                    values = c("above"="seagreen1", "below"="Red")) +  
-  labs(subtitle="Normalised Net Value for 5 years by Country'", 
-       title= "Diverging Bars") + 
-  coord_flip()
-```
-
-Considering the 5 years period, it is clear that China, Germany and Russia has contribution to trade deficit above average.
-
-
-We drilled down the analysis for the countries which decreases the average, namely China, Russia and Germany. For this aim, we build up shiny app to review the products by defining the Country and ratio showing cumulative percentage of share of products over total import value of this country.
-
-Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)
-
-Through the shiny app, it is understood that
-.70% of import value from China is coming from 8 products 
-.50% is from electrical machinery, equipments and machinery, mechanical appliances for China
-.%70 is from commodities and mineral fuels for import from Russia
-.only commodities constitute 43% of total import of Russia
-.vehicles other than railway is the top product imported from Germany
-.machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
-
-IMAGE
-
-
-
-
-
-
-###OMER2
-
-In order to understand the correlation between trade deficit/surplus and BIST100 index and USD/TL rates, we added this economic indicators to our analysis:
-
-Read the USD and BIST100 index values and rename the columns
-
-```{r}
-fileUSD= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/EVDS.xlsx"
-usdR <- read_excel(fileUSD, col_names=FALSE, skip=1)
-
-
-colnames(usdR) <- c("DateR","ExchangeRate")
-usd <- na.omit(usdR)
-remove(usdR)
-
-usdN<-usd %>% mutate(Date=dmy(DateR))
-usdM<- usdN %>% group_by(year=year(Date)) %>% summarise(Rate=mean(ExchangeRate)*10000000)
-
-
-fileBIST= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/BIST100.xlsx"
-bist100R <- read_excel(fileBIST, col_names=FALSE, skip=1)
-
-
-colnames(bist100R) <- c("Date",	"Year","Value",	"Açılış",	"Yüksek",	"Düşük",	"Hac.",	"Fark %")
-bist100 <- bist100R  %>% select(Date,Year,Value) %>% 
-  group_by(Year) %>% 
-  summarise(Value = mean(Value)*1000)
-```
-
-Draw the graph to represent USD/TL rate, BIST100 index and Trade Deficit in time series.
-
-```{r}
-sumImport<- import_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
-sumExport<- export_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
-joinedTableDeficit<-sumExport %>%  inner_join(sumImport,by="Country") %>%
-  mutate(Value_2013=Value_2013.y-Value_2013.x,Value_2014=Value_2014.y-Value_2014.x, Value_2015=Value_2015.y-Value_2015.x, Value_2016=Value_2016.y-Value_2016.x,
-         Value_2017=Value_2017.y-Value_2017.x) %>%
-  select(Country, Value_2013, Value_2014, Value_2015, Value_2016, Value_2017)
-
-joinedTableDeficitMelt <- melt(joinedTableDeficit, id = c("Country"))
-deficitPerCountry<-joinedTableDeficitMelt %>% mutate(year = case_when( variable == "Value_2013" ~ 2013,
-                                                                       variable == "Value_2014" ~ 2014,
-                                                                       variable == "Value_2015" ~ 2015,
-                                                                       variable == "Value_2016" ~ 2016,
-                                                                       variable == "Value_2017" ~ 2017)) %>%
-  select(Country,year,value)
-
-deficitPerYear <- deficitPerCountry %>%
-  group_by(year) %>% summarise(value=sum(value))
-
-
-p<-ggplot() + 
-  geom_line(data=usdM,aes(x=year, y=Rate,group = 1, colour="USD_TL_Rate"))+
-  geom_line(data=deficitPerYear,aes(x=year, y=value,group = 1, colour="Trade_Deficit"))+
-  geom_line(data=bist100,aes(x=Year, y=Value,group = 1,colour="BIST100_Index")) +
-  scale_colour_manual(name="Indicators",values=c(USD_TL_Rate="red", Trade_Deficit="blue", BIST100_Index="purple"))
-  
-
-print(p)
-
-```
-
-Trade deficit has negatively correlated with USD/TL rate between 2013 and 2016 as expected and for the year 2017 we saw the effect of stagflation - while the USD/TL rate increasing (accordingly we know that inflation rate is strongly positively correlatied with the inflation rate (inf rate: 2015-12:5.71%, 2016-12:9.94%, 2017-12:15.47%)) and weak or negative economic growth. 
-Besides, there is not a direct correlation between BIST100 index and Trade Deficit Values.
-
-
-
-####EMRE
-
-####Analysis of Year by Year Change in Trade Values
 
 ```{r}
 tableExport <- export_jTableMELTED %>% 
@@ -773,9 +582,9 @@ plotCanEx <- ggplot(summarytableCanadaEx, aes(x=substr(X__2, start = 1, stop = 3
        x="Product Group",
        y="Change in Export Value",
        Color=c("Year"))
+```
 
-
-
+```{r, echo=FALSE}
 # Import Analysis
 
 
@@ -814,7 +623,8 @@ plotCanIm <- ggplot(summarytableCanadaIm, aes(x=substr(X__2, start = 1, stop = 3
 ```
 
 
-```{r}
+
+```{r, echo=FALSE}
 
 # Second Russia
 
@@ -904,5 +714,154 @@ grid.arrange(plotRusEx, plotRusIm,  nrow = 1)
 ```
 
 
+#### Analysis of Trade Deficit by Countries and Years  
 
 
+To discovery that country's effects to trade deficit, we calculated net_value which formulated as 'Export_value - Import_value'. And visualized that value on the basis of year.
+
+First, group data; 
+
+```{r }
+export_Product_Group <- export_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Export_Quantity = Quantity,Export_Value =Values)
+
+import_Product_Group <- import_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Quantity = Quantity,Import_Value =Values)
+
+Export_Import_JTable <- export_Product_Group %>%
+  full_join(import_Product_Group,by=c("Country","Product_Group_Code","Product_Group_Name","year")) %>%
+mutate(Import_Quantity = replace(Import_Quantity, is.na(Import_Quantity),0),
+        Export_Quantity = replace(Export_Quantity, is.na(Export_Quantity),0))%>%
+select(Country,Product_Group_Code,Product_Group_Name,year,Export_Quantity,Import_Quantity,Export_Value,Import_Value)
+```
+
+Continue with visulation;
+
+```{r}
+####Net Value By Country###
+Net_Value_By_Country <- Export_Import_JTable %>%
+group_by(Country,year)%>%
+summarize (Export_Value = sum(Export_Value), Import_Value = sum(Import_Value), 
+           Net_Value = sum(Export_Value - Import_Value),Net_value_K = round((sum(Export_Value - Import_Value)/1000),digits=0)) 
+
+
+# Total Net Value fiiled with Country on the basis of Year #
+ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) + 
+  geom_bar(stat='identity', aes(fill=Country), width=.6,position = position_stack(reverse = TRUE))  +
+  labs(subtitle="Total Net Value fiiled with Country on the basis of Year ##", title= "Total Net Values") + 
+  coord_flip()+
+  theme(legend.position = "top")
+```
+
+As seen in the graph, only UK gives trade surplus for all years analysed and China, Russia, Germany and USA have the most significant effect on trade deficit. 
+
+##### An Alternative perspective to explore effects of countries
+
+The effects of countries are changing year by year. So that as an alternative perspective we could average net value for all countries in five years and normalized that value to show which country's effects are more than others.
+
+
+```{r }
+#Normalized of Average Values for five years
+Normalized_Values_By_Country <- Export_Import_JTable %>%
+  #filter (year == 2017)%>%
+  group_by(Country)%>%
+  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
+  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
+  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
+
+#Diverging Bars for normalized_Export_value
+ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , label=normalized_Net_value)) + 
+  geom_bar(stat='identity', aes(fill=value_Net_type), width=.5)  +
+  scale_fill_manual(name="Normalised Value", 
+                    labels = c("Above Average", "Below Average"), 
+                    values = c("above"="seagreen1", "below"="Red")) +  
+  labs(subtitle="Normalised Net Value for 5 years by Country'", 
+       title= "Diverging Bars") + 
+  coord_flip()
+```
+
+Considering the 5 years period, it is clear that China, Germany and Russia has contribution to trade deficit above average.
+
+
+We drilled down the analysis for the countries which decreases the average, namely China, Russia and Germany. For this aim, we build up shiny app to review the products by defining the Country and ratio showing cumulative percentage of share of products over total import value of this country.
+
+Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)
+
+Through the shiny app, it is understood that
+.70% of import value from China is coming from 8 products 
+.50% is from electrical machinery, equipments and machinery, mechanical appliances for China
+.%70 is from commodities and mineral fuels for import from Russia
+.only commodities constitute 43% of total import of Russia
+.vehicles other than railway is the top product imported from Germany
+.machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
+
+##### IMAGE EKLENECEK
+
+#### Correlation of Trade Deficit with FX Rate and BIST100 index
+
+In order to understand the correlation between trade deficit/surplus and BIST100 index and USD/TL rates, we added this economic indicators to our analysis:
+
+Read the USD and BIST100 index values and rename the columns
+
+```{r}
+fileUSD= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/EVDS.xlsx"
+usdR <- read_excel(fileUSD, col_names=FALSE, skip=1)
+
+
+colnames(usdR) <- c("DateR","ExchangeRate")
+usd <- na.omit(usdR)
+remove(usdR)
+
+usdN<-usd %>% mutate(Date=dmy(DateR))
+usdM<- usdN %>% group_by(year=year(Date)) %>% summarise(Rate=mean(ExchangeRate)*10000000)
+
+
+fileBIST= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/BIST100.xlsx"
+bist100R <- read_excel(fileBIST, col_names=FALSE, skip=1)
+
+
+colnames(bist100R) <- c("Date",	"Year","Value",	"Açılış",	"Yüksek",	"Düşük",	"Hac.",	"Fark %")
+bist100 <- bist100R  %>% select(Date,Year,Value) %>% 
+  group_by(Year) %>% 
+  summarise(Value = mean(Value)*1000)
+```
+
+Draw the graph to represent USD/TL rate, BIST100 index and Trade Deficit in time series.
+
+```{r}
+sumImport<- import_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
+sumExport<- export_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
+joinedTableDeficit<-sumExport %>%  inner_join(sumImport,by="Country") %>%
+  mutate(Value_2013=Value_2013.y-Value_2013.x,Value_2014=Value_2014.y-Value_2014.x, Value_2015=Value_2015.y-Value_2015.x, Value_2016=Value_2016.y-Value_2016.x,
+         Value_2017=Value_2017.y-Value_2017.x) %>%
+  select(Country, Value_2013, Value_2014, Value_2015, Value_2016, Value_2017)
+
+joinedTableDeficitMelt <- melt(joinedTableDeficit, id = c("Country"))
+deficitPerCountry<-joinedTableDeficitMelt %>% mutate(year = case_when( variable == "Value_2013" ~ 2013,
+                                                                       variable == "Value_2014" ~ 2014,
+                                                                       variable == "Value_2015" ~ 2015,
+                                                                       variable == "Value_2016" ~ 2016,
+                                                                       variable == "Value_2017" ~ 2017)) %>%
+  select(Country,year,value)
+
+deficitPerYear <- deficitPerCountry %>%
+  group_by(year) %>% summarise(value=sum(value))
+
+
+p<-ggplot() + 
+  geom_line(data=usdM,aes(x=year, y=Rate,group = 1, colour="USD_TL_Rate"))+
+  geom_line(data=deficitPerYear,aes(x=year, y=value,group = 1, colour="Trade_Deficit"))+
+  geom_line(data=bist100,aes(x=Year, y=Value,group = 1,colour="BIST100_Index")) +
+  scale_colour_manual(name="Indicators",values=c(USD_TL_Rate="red", Trade_Deficit="blue", BIST100_Index="purple"))
+  
+
+print(p)
+
+```
+
+Trade deficit has negatively correlated with USD/TL rate between 2013 and 2016 as expected and for the year 2017 we saw the effect of stagflation - while the USD/TL rate increasing (accordingly we know that inflation rate is strongly positively correlatied with the inflation rate (inf rate: 2015-12:5.71%, 2016-12:9.94%, 2017-12:15.47%)) and weak or negative economic growth. 
+Besides, there is not a direct correlation between BIST100 index and Trade Deficit Values.
