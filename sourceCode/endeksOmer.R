@@ -58,4 +58,5 @@ p<-ggplot() +
   geom_line(data=deficitPerYear,aes(x=year, y=value,group = 1),color="blue")+
   geom_line(data=bist100,aes(x=Year, y=Value,group = 1),color="green")
 
+
 print(p)

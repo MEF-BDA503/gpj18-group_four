@@ -30,6 +30,9 @@ unit_price_export <- export_jTableMELTED %>% select(Country,Product_Label, X__2 
 unit_price_import$year <- as.numeric(as.character(unit_price_import$year))
 unit_price_export$year <- as.numeric(as.character(unit_price_import$year))
 
+
+
+
 allMelted <- rbind(unit_price_import,unit_price_export )
 
 print(unit_price_import)
