@@ -2,18 +2,28 @@
 title: "Group Fou\\*R* Term Project"
 subtitle: "MEF University - BDA 503 Essentials of Data Analytics - Fall 2018"
 date: "December 2018"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+    number_sections: false
+    df_print: paged
+    code_folding: hide
+
 ---
-## Explanatory Data Analysis of Trade Statistics of Turkey
+# Explanatory Data Analysis of Trade Statistics of Turkey {.tabset .tabset-fade .tabset-pills}
 
-### Abstract 
+## Abstract 
 
-We worked on trade statistics data of Turkey against the G7 countries and 3 more countries (Russia, India, China) both for export and import.Our aim is to analyze Turkey?s trade characteristics by product groups. Within this aim, we take trade values and quantities by product groups in MS Excel file format from trademap.org website for each trade partner country for the period of 2013 - 2017. 
+We worked on trade statistics data of Turkey against the G7 countries and 3 more countries (Russia, India, China) both for export and import.Our aim is to analyze Turkey's trade characteristics by product groups. Within this aim, we take trade values and quantities by product groups in MS Excel file format from trademap.org website for each trade partner country for the period of 2013 - 2017. 
 In this study, We applied data manipulation to make it proper for analysis and explanatory data analysis with visulations and conclude with overall statistical overview of Turkey's trade.     
 
-### Explanation of Raw Data
+## Explanation of Raw Data 
 
-Following the extraction from source (Trademap.org), our raw data consist of 10 countries? trade data against Turkey. This data splits to 2 with trade direction as ?Export? and ?Import?. The other dimension is stat for trade, one is ?Quantity? of Export/Import, the other is ?Value? in thousand USD of Export/Import. Therefore we have four main data frame for each country (total of 40 excel files).
+Following the extraction from source (Trademap.org), our raw data consist of 10 countries' trade data against Turkey. This data splits to 2 with trade direction as 'Export' and 'Import'. The other dimension is stat for trade, one is 'Quantity' of Export/Import, the other is 'Value' in thousand USD of Export/Import. Therefore we have four main data frame for each country (total of 40 excel files).
+
 
 
 <table>
@@ -248,7 +258,7 @@ Regarding the variables included in these tables; definitions are as follows:
 
 
 
-### Data Preparation, Cleaning and Manipulation
+## Data Preparation, Cleaning and Manipulation
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -428,9 +438,9 @@ glimpse(export_jTableMELTED)
 glimpse(import_jTableMELTED)
 ```
 
-### Analysis 
+## Analysis 
 
-#### Breakdown of Total Export and Import of Turkey Over Countries
+### Breakdown of Total Export and Import of Turkey Over Countries
 
 ```{r}
 ttable1=export_jTableMELTED%>%group_by(Country)%>%
@@ -502,10 +512,10 @@ In order to deeply understand the data; we build up shiny app with Country, Prod
 Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrg)
 
 
-##### YORUM VE IMAGE EKLENECEK
+#### YORUM VE IMAGE EKLENECEK
 
 
-#### Analysis of Year by Year Change in Trade Values
+### Analysis of Year by Year Change in Trade Values
 
 
 ```{r}
@@ -560,13 +570,13 @@ summarytableCanadaEx <- export_jTableMELTED %>%
   filter(year!=2013) 
 
 
-mean(summarytableCanadaEx$ExpChngYoy)
-median(summarytableCanadaEx$ExpChngYoy)
-sd(summarytableCanadaEx$ExpChngYoy)
-quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+#mean(summarytableCanadaEx$ExpChngYoy)
+#median(summarytableCanadaEx$ExpChngYoy)
+#sd(summarytableCanadaEx$ExpChngYoy)
+#quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25)) - (1.5*IQR)
-ustsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) + (1.5*IQR)
+altsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) + (2*IQR)
 
 
 summarytableCanadaEx <- summarytableCanadaEx %>%
@@ -598,13 +608,13 @@ summarytableCanadaIm <- import_jTableMELTED %>%
   filter(year!=2013) 
 
 
-mean(summarytableCanadaIm$ImpChngYoy)
-median(summarytableCanadaIm$ImpChngYoy)
-sd(summarytableCanadaIm$ImpChngYoy)
-quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+#mean(summarytableCanadaIm$ImpChngYoy)
+#median(summarytableCanadaIm$ImpChngYoy)
+#sd(summarytableCanadaIm$ImpChngYoy)
+#quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25)) - (1.5*IQR)
-ustsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) + (1.5*IQR)
+altsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) + (2*IQR)
 
 
 summarytableCanadaIm <- summarytableCanadaIm %>%
@@ -640,13 +650,13 @@ summarytableRussianEx <- export_jTableMELTED %>%
   filter(year!=2013) 
 
 
-mean(summarytableRussianEx$ExpChngYoy)
-median(summarytableRussianEx$ExpChngYoy)
-sd(summarytableRussianEx$ExpChngYoy)
-quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+#mean(summarytableRussianEx$ExpChngYoy)
+#median(summarytableRussianEx$ExpChngYoy)
+#sd(summarytableRussianEx$ExpChngYoy)
+#quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25)) - (1.5*IQR)
-ustsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) + (1.5*IQR)
+altsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) + (2*IQR)
 
 
 summarytableRussianEx <- summarytableRussianEx %>%
@@ -678,13 +688,13 @@ summarytableRussianIm <- import_jTableMELTED %>%
   filter(year!=2013) 
 
 
-mean(summarytableRussianIm$ImpChngYoy)
-median(summarytableRussianIm$ImpChngYoy)
-sd(summarytableRussianIm$ImpChngYoy)
-quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+#mean(summarytableRussianIm$ImpChngYoy)
+#median(summarytableRussianIm$ImpChngYoy)
+#sd(summarytableRussianIm$ImpChngYoy)
+#quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25)) - (1.5*IQR)
-ustsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) + (1.5*IQR)
+altsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) + (2*IQR)
 
 
 summarytableRussianIm <- summarytableRussianIm %>%
@@ -702,19 +712,20 @@ plotRusIm <- ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 
        Color=c("Year")) 
 ```
 
-```{r, fig.height = 8, fig.width = 16}
+```{r, echo=FALSE, fig.height=7, fig.width=10 }
 
-#install.packages("gridExtra")
+plotCanEx
+plotCanIm
+plotRusEx
+plotRusIm
 
-library(gridExtra)
-
-grid.arrange(plotCanEx, plotCanIm,  nrow = 1)
-grid.arrange(plotRusEx, plotRusIm,  nrow = 1)
-
+#grid.arrange(plotCanEx, plotCanIm,  nrow = 1)
+#grid.arrange(plotRusEx, plotRusIm,  nrow = 1)
+#fig.height=8, fig.width=16
 ```
 
 
-#### Analysis of Trade Deficit by Countries and Years  
+### Analysis of Trade Deficit by Countries and Years  
 
 
 To discovery that country's effects to trade deficit, we calculated net_value which formulated as 'Export_value - Import_value'. And visualized that value on the basis of year.
@@ -759,7 +770,7 @@ ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) +
 
 As seen in the graph, only UK gives trade surplus for all years analysed and China, Russia, Germany and USA have the most significant effect on trade deficit. 
 
-##### An Alternative perspective to explore effects of countries
+#### An Alternative perspective to explore effects of countries
 
 The effects of countries are changing year by year. So that as an alternative perspective we could average net value for all countries in five years and normalized that value to show which country's effects are more than others.
 
@@ -792,16 +803,16 @@ We drilled down the analysis for the countries which decreases the average, name
 Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)
 
 Through the shiny app, it is understood that
-.70% of import value from China is coming from 8 products 
-.50% is from electrical machinery, equipments and machinery, mechanical appliances for China
-.%70 is from commodities and mineral fuels for import from Russia
-.only commodities constitute 43% of total import of Russia
-.vehicles other than railway is the top product imported from Germany
-.machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
+* 70% of import value from China is coming from 8 products 
+* 50% is from electrical machinery, equipments and machinery, mechanical appliances for China
+* %70 is from commodities and mineral fuels for import from Russia
+* Only commodities constitute 43% of total import of Russia
+* Vehicles other than railway is the top product imported from Germany
+* Machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
 
-##### IMAGE EKLENECEK
+#### IMAGE EKLENECEK
 
-#### Correlation of Trade Deficit with FX Rate and BIST100 index
+### Correlation of Trade Deficit with FX Rate and BIST100 index
 
 In order to understand the correlation between trade deficit/surplus and BIST100 index and USD/TL rates, we added this economic indicators to our analysis:
 
