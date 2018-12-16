@@ -9,3 +9,7 @@ Please find the project proposal [here](Proposal.html)
 ***
 ### A Summary of the Data, Explanations and Preliminary Analysis
 Please find the preliminary analysis [here](PreliminaryAnalysis.html)
+
+***
+### Draft Report
+Please find the draft report [here](Draft.html)
