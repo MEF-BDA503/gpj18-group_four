@@ -252,12 +252,16 @@ Regarding the variables included in these tables; definitions are as follows:
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
 library(shiny)
 library(tidyverse)
 library(dplyr)
 library(readxl)
 library(leaflet)
 library(reshape2)
+library(gridExtra)
+library(lubridate)
+library(plotrix)
 ```
 
 
@@ -437,24 +441,65 @@ glimpse(import_jTableMELTED)
 ####SALIH
 
 ```{r}
-# Export Values in $ 
-ttable=export_jTableMELTED%>%group_by(Country,year)%>%
+
+
+
+```
+
+
+```{r}
+ttable1=export_jTableMELTED%>%group_by(Country)%>%
   summarise(co_total=sum(Values,na.rm = TRUE))%>%
   arrange(desc(co_total,year))
+
+exptable1=export_jTableMELTED%>%group_by(Country)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+
+pex1_table<-ttable1%>%
+  mutate(perc_count=(co_total/sum(ttable1$co_total))*100)%>%
+  select(Country,co_total,perc_count)
+
+imptable1=import_jTableMELTED%>%group_by(Country)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+
+pim1_table<-imptable1%>%
+  mutate(perc_count=(co_total/sum(ttable1$co_total))*100)%>%
+  select(Country,co_total,perc_count)
+
+
+lbls_i <- paste(pim1_table$Country,round(pim1_table$perc_count,1)) # add percents to labels
+lbls_i <- paste(lbls_i,"%",sep="") # ad % to labels
+
+pie3D(pim1_table$perc_count,labels=lbls_i,main = "Total Percentage Import Per Countries", explode=0.1, radius=.9,
+      labelcex = 1.2, start=0.7)
+
+lbls_e <- paste(pex1_table$Country,round(pex1_table$perc_count,1)) # add percents to labels
+lbls_e <- paste(lbls_e,"%",sep="") # ad % to labels
+
+pie3D(pex1_table$perc_count,labels=lbls_e,main = "Total Percentage Export Per Countries", explode=0.1, radius=.9,
+             labelcex = 1.2, start=0.7)
 
 ```
 
 
 
+
 ```{r}
+# Export Values in $ 
+ttable=export_jTableMELTED%>%group_by(Country,year)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
 #Import Values in $
 vtable=import_jTableMELTED%>%group_by(Country,year)%>%summarise(co_total=sum(Values,na.rm = TRUE))%>%arrange(desc(co_total,year))
+
+#Import & Export percentage of Countries
 
 a<-ggplot(data=vtable, aes(x=Country, y=co_total,fill=year)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black")+
   ggtitle("Total Import Values in $ to Selected Countries")
 
-#Export percentage of Countries
 
 b<-ggplot(data=ttable, aes(x=Country, y=co_total,fill=year)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black")+ggtitle("Total Export Values in $ to Selected Countries")
@@ -563,6 +608,28 @@ ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , lab
 
 Considering the 5 years period, it is clear that China, Germany and Russia has contribution to trade deficit above average.
 
+
+We drilled down the analysis for the countries which decreases the average, namely China, Russia and Germany. For this aim, we build up shiny app to review the products by defining the Country and ratio showing cumulative percentage of share of products over total import value of this country.
+
+Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)
+
+Through the shiny app, it is understood that
+.70% of import value from China is coming from 8 products 
+.50% is from electrical machinery, equipments and machinery, mechanical appliances for China
+.%70 is from commodities and mineral fuels for import from Russia
+.only commodities constitute 43% of total import of Russia
+.vehicles other than railway is the top product imported from Germany
+.machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
+
+IMAGE
+
+
+
+
+
+
+###OMER2
+
 In order to understand the correlation between trade deficit/surplus and BIST100 index and USD/TL rates, we added this economic indicators to our analysis:
 
 Read the USD and BIST100 index values and rename the columns
@@ -653,7 +720,7 @@ table <- full_join(tableExport,tableImport) %>%
 ```
 
 
-```{r}
+```{r, }
 ggplot(table, aes(x=year)) +
   geom_point(aes(y=value, color=Country, shape=variable), size=4) + 
   facet_grid(~variable) +
@@ -689,8 +756,8 @@ median(summarytableCanadaEx$ExpChngYoy)
 sd(summarytableCanadaEx$ExpChngYoy)
 quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25)) - IQR
-ustsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) + IQR
+altsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25)) - (1.5*IQR)
+ustsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) + (1.5*IQR)
 
 
 summarytableCanadaEx <- summarytableCanadaEx %>%
@@ -727,8 +794,8 @@ median(summarytableCanadaIm$ImpChngYoy)
 sd(summarytableCanadaIm$ImpChngYoy)
 quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25)) - IQR
-ustsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) + IQR
+altsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25)) - (1.5*IQR)
+ustsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) + (1.5*IQR)
 
 
 summarytableCanadaIm <- summarytableCanadaIm %>%
@@ -768,8 +835,8 @@ median(summarytableRussianEx$ExpChngYoy)
 sd(summarytableRussianEx$ExpChngYoy)
 quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25)) - IQR
-ustsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) + IQR
+altsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25)) - (1.5*IQR)
+ustsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) + (1.5*IQR)
 
 
 summarytableRussianEx <- summarytableRussianEx %>%
@@ -806,8 +873,8 @@ median(summarytableRussianIm$ImpChngYoy)
 sd(summarytableRussianIm$ImpChngYoy)
 quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
 IQR= quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25))
-altsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25)) - IQR
-ustsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) + IQR
+altsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25)) - (1.5*IQR)
+ustsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) + (1.5*IQR)
 
 
 summarytableRussianIm <- summarytableRussianIm %>%
@@ -822,17 +889,17 @@ plotRusIm <- ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 
   labs(title="YoY Total Value Change Russia - Import",
        x="Product Group",
        y="Change in Import Value",
-       Color=c("Year"))
+       Color=c("Year")) 
 ```
 
-```{r}
+```{r, fig.height = 8, fig.width = 16}
 
 #install.packages("gridExtra")
 
 library(gridExtra)
 
 grid.arrange(plotCanEx, plotCanIm,  nrow = 1)
-grid.arrange(plotRusEx, plotRusIm,  nrow = 2)
+grid.arrange(plotRusEx, plotRusIm,  nrow = 1)
 
 ```
 
