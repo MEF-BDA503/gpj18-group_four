@@ -803,6 +803,7 @@ We drilled down the analysis for the countries which decreases the average, name
 Please follow the link for interactive graph: [Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)
 
 Through the shiny app, it is understood that
+
 * 70% of import value from China is coming from 8 products 
 * 50% is from electrical machinery, equipments and machinery, mechanical appliances for China
 * %70 is from commodities and mineral fuels for import from Russia
