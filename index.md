@@ -12,4 +12,4 @@ Please find the preliminary analysis [here](PreliminaryAnalysis.html)
 
 ***
 ### Draft Report
-Please find the draft report [here](Draft.html)
+Please find the draft report [here](Draft/Draft20181218.html)
