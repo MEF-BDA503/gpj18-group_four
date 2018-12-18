@@ -1,0 +1,900 @@
+---
+title: "Explanatory Data Analysis of Trade Statistics of Turkey"
+subtitle: "MEF University - BDA 503 Essentials of Data Analytics - Fall 2018 - Group Fou\\*R* Term Project"
+date: "December 2018"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+    number_sections: false
+    df_print: paged
+    code_folding: hide
+
+---
+# {.tabset .tabset-fade .tabset-pills}
+
+## Abstract 
+
+In this term project, trade statistics data of Turkey against the G7 countries and 3 more countries (Russia, India, China) is analysed. The aim of the project is to analyze Turkey's export and import characteristics by product groups considering the trade value and quantities. Within this aim, we take trade values and quantities by product groups in MS Excel file format from [trademap.org](https://trademap.org/Index.aspx) website for each trade partner for the period between 2013 and 2017. 
+In this study, We followed the steps of explanation of raw data, preparation of raw data through merging the raw data files, cleaning, and manipulating,  analysing the data to explore the trade characteristics along with visulations and lastly concluding the comments from analysis.     
+
+## Explanation of Raw Data 
+
+Following the extraction from source [(Trademap.org)](https://trademap.org/Index.aspx), our raw data consist of 10 countries' trade data against Turkey. This data split with trade direction as 'Export' and 'Import', in other words each country has 2 files as export and import. The other dimension is trade data; one is 'Quantity' of Export/Import, the other is 'Value' in thousand USD of Export/Import, which means each country has one file for 'Quantity' and one file for 'Trade Value'. Therefore we have four main data table for each country (total of 40 excel files).
+
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Data Frame</th>
+<th align="left">DF Definition</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">ExportValues</td>
+<td align="left">Export from Turkey to target countries and their values in thousand USD</td>
+</tr>
+<tr class="odd">
+<td align="left">ExportQuantity</td>
+<td align="left">Export from Turkey to target countries and their quantities in units(tons,gallons etc)</td>
+</tr>
+<tr class="odd">
+<td align="left">ImportValues</td>
+<td align="left">Import to Turkey from target counties and their values in thousand USD</td>
+</tr>
+<tr class="odd">
+<td align="left">ImportQuantity</td>
+<td align="left">Import to Turkey from target counties and their quantities in units(tons,gallons etc)</td>
+</tr>
+  
+</tbody>
+</table> 
+
+
+
+
+Variables in "Quantity" and "Value" files are as follows:
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Country</th>
+<th align="left">Product code</th>
+<th align="left">Product label</th>
+<th align="left">Quantity in 2013</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2014</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2015</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2016</th>
+<th align="left">Unit</th>
+<th align="left">Quantity in 2017</th>
+<th align="left">Unit</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">France</td>
+<td align="left">'0306</td>
+<td align="left">Crustaceans, whether in shell or not, live, fresh, chilled, frozen, dried, salted or in brine, ...</td>
+<td align="left">121</td>
+<td align="left">Tons</td>
+<td align="left">139</td>
+<td align="left">Tons</td>
+<td align="left">22</td>
+<td align="left">Tons</td>
+<td align="left">24</td>
+<td align="left">Tons</td>
+
+</tr>
+</tbody>
+</table>
+			 	 		 	 
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Country</th>
+<th align="left">Product code</th>
+<th align="left">Product label</th>
+<th align="left">Value in 2013</th>
+<th align="left">Value in 2014</th>
+<th align="left">Value in 2015</th>
+<th align="left">Value in 2016</th>
+<th align="left">Value in 2017</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">France</td>
+<td align="left">'0306</td>
+<td align="left">Crustaceans, whether in shell or not, live, fresh, chilled, frozen, dried, salted or in brine, ...</td>
+<td align="left">0</td>
+<td align="left">1155</td>
+<td align="left">1182</td>
+<td align="left">270</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+
+
+
+In addition to main raw data, we also have a look-up table for product codes. This lookup table registers product labels in 2 digits code that is less categorized than main data.
+
+<table>
+<thead>
+<tr class="header">
+<th align="left">Product code</th>
+<th align="left">Product label</th>
+</tr>
+</thead>
+
+<tbody>
+<tr class="odd">
+<td align="left">'01</td>
+<td align="left">Live animals</td>
+</tr>
+<tr class="odd">
+<td align="left">'02</td>
+<td align="left">Meat and edible meat offal</td>
+</tr>
+
+</tbody>
+</table>
+
+
+Regarding the variables included in these tables; definitions are as follows:  
+
+<table>
+<thead>
+<tr class="header">
+<th align="center" colspan="2">ExportQuantity & ImportQuantity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Country</td>
+<td align="left">Trade Partner of Turkey</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Code</td>
+<td align="left">Traded Product Code in 4 digit</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Label</td>
+<td align="left">Product Definition</td>
+</tr>  
+<tr class="odd">
+<td align="left">Unit</td>
+<td align="left">Metric of Quantity</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2013</td>
+<td align="left">Export or Import quantity in 2013</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2014</td>
+<td align="left">Export or Import quantity in 2014</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2015</td>
+<td align="left">Export or Import quantity in 2015</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2016</td>
+<td align="left">Export or Import quantity in 2016</td>
+</tr>
+<tr class="odd">
+<td align="left">Quantity_2017</td>
+<td align="left">Export or Import quantity in 2017</td>
+</tr>  
+</tbody>
+</table>
+
+
+
+<table>
+<thead>
+<tr class="header">
+<th align="center" colspan="2">ExportValues & ImportValues</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Country</td>
+<td align="left">Trade Partner of Turkey</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Code</td>
+<td align="left">Traded Product Code in 4 digit</td>
+</tr>
+<tr class="odd">
+<td align="left">Product_Label</td>
+<td align="left">Product Definition</td>
+</tr>  
+<tr class="odd">
+<td align="left">Value_2013</td>
+<td align="left">Export or Import value in 2013</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2014</td>
+<td align="left">Export or Import value in 2014</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2015</td>
+<td align="left">Export or Import value in 2015</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2016</td>
+<td align="left">Export or Import value in 2016</td>
+</tr>
+<tr class="odd">
+<td align="left">Value_2017</td>
+<td align="left">Export or Import value in 2017</td>
+</tr>
+</tbody>
+</table>
+
+
+
+## Data Preparation, Cleaning and Manipulation
+
+We started with loading the needed libraries for preparation, manipulation, analysis and visualisation.  
+```{r, message=FALSE, warning=FALSE}
+library(shiny)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(leaflet)
+library(reshape2)
+library(gridExtra)
+library(lubridate)
+library(plotrix)
+library(treemap)
+```
+
+
+First of all, we need to read the excel files constituting our raw data. For this aim, we wrote a function named "getDataSet".
+
+
+```{r, warning=FALSE}
+
+PATH <-"C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/Raw Data"
+setwd(PATH)
+
+getDataSet <- function(pPattern){
+  nm <- list.files(path = PATH, pattern = pPattern)  
+  if (exists("resultDataset")){
+    rm("resultDataset")
+  }
+  for (file in nm){
+    if (!exists("resultDataset")){
+      resultDataset <- read_excel(file, col_names=FALSE, skip=1)
+    }
+    else{
+      temp_dataset <-read_excel(file, col_names=FALSE, skip=1)
+      resultDataset<-rbind(resultDataset, temp_dataset)
+      rm(temp_dataset)
+    }
+    
+  }
+  return(resultDataset)
+  
+}
+
+
+import_quantity_dataset <- getDataSet('*.mport.*uant.*')
+import_value_dataset <- getDataSet('*.mport.*alu.*')
+export_quantity_dataset <- getDataSet('*.xport.*uant.*')
+export_value_dataset <- getDataSet('*.xport.*alu.*')
+
+```
+
+This function reads the excel files in the defined path according to given pattern in the filename and bind them in one file named "resultDataset". By using the getDataSet function, we merged the Turkey's export-quantity, export-value, import-quantity and import-value tables for 10 selected countries.
+
+Then, we named the columns and removed the single quotation marks in product code column in each file.
+
+```{r}
+colnames(import_quantity_dataset) <- c("Country","Product_Code","Product_Label","Quantity_2013","Unit1","Quantity_2014","Unit2","Quantity_2015","Unit3","Quantity_2016","Unit4","Quantity_2017","Unit5")
+colnames(import_value_dataset) <- c("Country","Product_Code","Product_Label","Value_2013","Value_2014","Value_2015","Value_2016","Value_2017")
+colnames(export_quantity_dataset) <- c("Country","Product_Code","Product_Label","Quantity_2013","Unit1","Quantity_2014","Unit2","Quantity_2015","Unit3","Quantity_2016","Unit4","Quantity_2017","Unit5")
+colnames(export_value_dataset) <- c("Country","Product_Code","Product_Label","Value_2013","Value_2014","Value_2015","Value_2016","Value_2017")
+
+import_quantity_dataset$Product_Code<- gsub("'", "", import_quantity_dataset$Product_Code)
+import_value_dataset$Product_Code<- gsub("'", "",import_value_dataset$Product_Code)
+export_quantity_dataset$Product_Code<- gsub("'", "",export_quantity_dataset$Product_Code)
+export_value_dataset$Product_Code<- gsub("'", "",export_value_dataset$Product_Code)
+
+```
+
+
+After the first step, the view of export & import quantity and export& import value datasets are below in respective order: 
+
+```{r}
+glimpse(export_quantity_dataset)
+glimpse(import_quantity_dataset)
+glimpse(export_value_dataset)
+glimpse(import_value_dataset)
+```
+
+We have 13 and 8 variables in quantity and value tables respectively for export and import.
+
+Now, it is time to join quantity and value data for both export and import files. While joining the tables, we should also clear the repetitive variable "Unit" for each year.
+
+Also, we need to join product labels in 2 digit product codes with these table.  
+
+
+```{r, echo=TRUE, warning=FALSE}
+#read the ProductCodes excel
+file = "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/2digitproductlist.xlsx"
+prdCode <- read_excel(file, col_names=FALSE, skip=1)
+prdCode$X__1 <- gsub("'", "", prdCode$X__1)
+
+# join the import values and quantities
+import_jTable <- import_quantity_dataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014, Quantity_2015, Quantity_2016, Quantity_2017) %>% 
+  full_join(import_value_dataset,by = c("Country","Product_Code"))  
+# seperate the first 2 digits of 4 digit product code and join the 2digit product code excel 
+import_jTable <- import_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+import_jTable <- left_join(import_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+  
+# join the export values and quantities
+export_jTable <- export_quantity_dataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014,Quantity_2015,Quantity_2016,Quantity_2017) %>% 
+  full_join(export_value_dataset,by = c("Country","Product_Code"))  
+# seperate the first 2 digits of 4 digit product code and join the 2digit product code excel
+export_jTable <- export_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+export_jTable <- left_join(export_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+
+```
+
+Now we have joined tables for import and export stats of Turkey. Lets glimpse them:
+
+```{r}
+glimpse(import_jTable)
+glimpse(export_jTable)
+```
+
+Both tables now have 16 variables and 12,223 rows.
+
+But there is a row in Product_Code column as "TOTAL", we cleared it as well.
+
+```{r, echo=TRUE}
+export_jTable <- export_jTable %>% filter(!grepl("TOTAL", Product_Code))
+import_jTable <- import_jTable %>% filter(!grepl("TOTAL", Product_Code))
+```
+
+We have 16 variables in these tables however quantity and value variables repeat for each year. So actually, it is better to organize the table that it will have 3 variables as "Year", "Quantity" and "Value" instead of 10 columns.
+
+
+```{r}
+#create new objects for each years' quantity
+q2013<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2013) %>% mutate(year="2013") %>% rename("Quantity"=Quantity_2013)
+q2014<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2014) %>% mutate(year="2014") %>% rename("Quantity"=Quantity_2014)
+q2015<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2015) %>% mutate(year="2015") %>% rename("Quantity"=Quantity_2015)
+q2016<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2016) %>% mutate(year="2016") %>% rename("Quantity"=Quantity_2016) 
+q2017<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2017) %>% mutate(year="2017") %>% rename("Quantity"=Quantity_2017)
+
+#bind the objects
+importQuant <- bind_rows(q2013,q2014,q2015,q2016,q2017)
+
+#create new objects for each years' values
+v2013<-import_jTable %>% select(Country,Product_Code, Value_2013) %>% rename("Values"=Value_2013) %>% mutate(year="2013")
+v2014<-import_jTable %>% select(Country,Product_Code, Value_2014) %>% rename("Values"=Value_2014) %>% mutate(year="2014")
+v2015<-import_jTable %>% select(Country,Product_Code, Value_2015) %>% rename("Values"=Value_2015) %>% mutate(year="2015")
+v2016<-import_jTable %>% select(Country,Product_Code, Value_2016) %>% rename("Values"=Value_2016) %>% mutate(year="2016") 
+v2017<-import_jTable %>% select(Country,Product_Code, Value_2017) %>% rename("Values"=Value_2017) %>% mutate(year="2017")
+
+#bind the objects
+importValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
+
+#join binded quantity and value
+import_jTableMELTED <- importQuant %>% left_join(importValues, by=c("Country","Product_Code","year"))
+
+
+#Repeat with export table
+
+q2013<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2013) %>% mutate(year="2013") %>% rename("Quantity"=Quantity_2013)
+q2014<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2014) %>% mutate(year="2014") %>% rename("Quantity"=Quantity_2014)
+q2015<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2015) %>% mutate(year="2015") %>% rename("Quantity"=Quantity_2015)
+q2016<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2016) %>% mutate(year="2016") %>% rename("Quantity"=Quantity_2016) 
+q2017<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2017) %>% mutate(year="2017") %>% rename("Quantity"=Quantity_2017)
+
+exportQuant <- bind_rows(q2013,q2014,q2015,q2016,q2017)
+
+v2013<-export_jTable %>% select(Country,Product_Code, Value_2013) %>% rename("Values"=Value_2013) %>% mutate(year="2013")
+v2014<-export_jTable %>% select(Country,Product_Code, Value_2014) %>% rename("Values"=Value_2014) %>% mutate(year="2014")
+v2015<-export_jTable %>% select(Country,Product_Code, Value_2015) %>% rename("Values"=Value_2015) %>% mutate(year="2015")
+v2016<-export_jTable %>% select(Country,Product_Code, Value_2016) %>% rename("Values"=Value_2016) %>% mutate(year="2016") 
+v2017<-export_jTable %>% select(Country,Product_Code, Value_2017) %>% rename("Values"=Value_2017) %>% mutate(year="2017")
+
+exportValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
+
+export_jTableMELTED <- exportQuant %>% left_join(exportValues, by=c("Country","Product_Code","year"))
+```
+
+
+After above coding, now we have more useful tables, with 9 variables and 61100 rows.
+
+```{r}
+glimpse(export_jTableMELTED)
+glimpse(import_jTableMELTED)
+```
+
+These tables are ready for analysis that will be conducted in the next section. However, before proceeding first lets check the summary of export and import tables.
+
+```{r}
+summary(export_jTableMELTED)
+sd(export_jTableMELTED$Values)
+
+summary(import_jTableMELTED)
+sd(import_jTableMELTED$Values)
+```
+Since the quantities have different respective units, it is not logical to comment on descriptive statistics for quantity but for the values column we can say that the values are so dispersed with 4391 mean value and  36438 standart deviation for exports and 9495 mean and 110904 standart deviation.
+
+
+## Analysis 
+
+### Breakdown of Total Export and Import of Turkey Over Countries
+
+Our analysis starts with to understandthe shares of trade volume of the selected 10 countries on Turkey's import and export. 
+
+```{r, fig.align="center"}
+# TREEMAP FOR EXPORT
+
+exptable1=export_jTableMELTED%>%group_by(Country)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+
+pex1_table<-exptable1%>%
+  mutate(perc_count=(co_total/sum(exptable1$co_total))*100)%>%
+  select(Country,co_total,perc_count)
+
+treemap(pex1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_count",title="Total Export Percentage on Countries",
+        fontsize.title = 17,type="value",palette = "Set1")
+
+# TREEMAP FOR IMPORT
+
+imptable1=import_jTableMELTED%>%group_by(Country)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+
+pim1_table<-imptable1%>%
+  mutate(perc_count=(co_total/sum(imptable1$co_total))*100)%>%
+  select(Country,co_total,perc_count)
+
+treemap(pim1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_count",title="Total Import Percentage on Countries",
+        fontsize.title = 17,type="value",palette = "Set1")
+```
+
+As seen above, Turkeys' biggest trade partners are China, Germany, Russia and US at import side while they are Germany, UK, Italy and USA at export side. Germany and USA are the 2 top countries seen in both directions of trade. 
+
+When we breakdown this info to years, it is seen in below graphs that except Russia, fluctuations over years are not seem so significant but it is worth to deep dive Year over Year (YoY) changes.    
+
+```{r, fig.align="center"}
+# Export Values in $ 
+ttable=export_jTableMELTED%>%group_by(Country,year)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+#Import Values in $
+vtable=import_jTableMELTED%>%group_by(Country,year)%>%summarise(co_total=sum(Values,na.rm = TRUE))%>%arrange(desc(co_total,year))
+
+#Import & Export percentage of Countries
+
+a<-ggplot(data=vtable, aes(x=Country, y=co_total,fill=year)) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black")+
+  ggtitle("Total Import Values in $ to Selected Countries")
+
+
+b<-ggplot(data=ttable, aes(x=Country, y=co_total,fill=year)) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black")+ggtitle("Total Export Values in $ to Selected Countries")
+
+
+
+grid.arrange(a,b,  nrow = 2)
+```
+
+
+### Analysis of Year over Year Changes in Trade Values
+
+In order to review YoY changes, we calculated delta of trade value for consecutive years and plotted as below seperating export and import. 
+
+```{r, message=FALSE}
+tableExport <- export_jTableMELTED %>% 
+  group_by(Country, year) %>%
+  summarise(totalExpV=sum(Values,na.rm=TRUE)) %>%
+  arrange(Country, year) %>%
+  mutate(ExpValChng = (totalExpV - lag(totalExpV))/lag(totalExpV)*100)
+
+
+tableImport <- import_jTableMELTED %>% 
+  group_by(Country, year) %>%
+  summarise(totalImpV=sum(Values,na.rm=TRUE)) %>%
+  arrange(Country, year) %>%
+  mutate(ImpValChng = (totalImpV - lag(totalImpV))/lag(totalImpV)*100)
+
+table <- full_join(tableExport,tableImport) %>%
+  select(Country, year, Export="ExpValChng", Import = "ImpValChng") %>%
+  melt(id=c("Country", "year")) %>%
+  filter(year!=2013)
+```
+
+
+```{r, fig.align="center"}
+ggplot(table, aes(x=year)) +
+  geom_point(aes(y=value, color=Country, shape=variable), size=4) + 
+  facet_grid(~variable) +
+   labs(title="YoY Total Value Change",
+    x="Year",
+    y="% Change in  Value",
+    shape=c("Trade Type"))
+```
+
+From the graph, it is observable that especially in the years of 2015, 2016 and 2017 exports from Russia and Canada deviates strongly, up to above %50. And for the import side, again in 2016 and 2017 seems that Russia and Canada are top deviators and suprisingly in 2017 imports from Canada rises more than 100%.
+
+So, we should check which products drives these fluctuations. In order to visualize it, we found the highest delta products through filtering the ones exceeding 2 interquantile range (IQR - the difference between third and first quantile). 
+
+```{r, fig.align="center"}
+
+# Canada and Russia significantly deviates. Investigate these countries in detail with traded products
+
+# First Canada
+
+# Export Analysis
+
+summarytableCanadaEx <- export_jTableMELTED %>%
+  filter(Country=="Canada") %>%
+  group_by(X__2, year) %>%
+  summarise(ExportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ExpPercChngYoY = (ExportValue - lag(ExportValue))/lag(ExportValue)*100) %>%
+  mutate(ExpChngYoy=((ExportValue - lag(ExportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableCanadaEx$ExpChngYoy)
+#median(summarytableCanadaEx$ExpChngYoy)
+#sd(summarytableCanadaEx$ExpChngYoy)
+#quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableCanadaEx <- summarytableCanadaEx %>%
+  filter(abs(ExpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+plotCanEx <- ggplot(summarytableCanadaEx, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ExpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(title="YoY Total Value Change with Canada - Export",
+       x="Product Group",
+       y="Change in Export Value",
+       Color=c("Year"))
+```
+
+```{r, echo=FALSE, fig.align="center"}
+# Import Analysis
+
+
+summarytableCanadaIm <- import_jTableMELTED %>%
+  filter(Country=="Canada") %>%
+  group_by(X__2, year) %>%
+  summarise(ImportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ImpPercChngYoY = (ImportValue - lag(ImportValue))/lag(ImportValue)*100) %>%
+  mutate(ImpChngYoy=((ImportValue - lag(ImportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableCanadaIm$ImpChngYoy)
+#median(summarytableCanadaIm$ImpChngYoy)
+#sd(summarytableCanadaIm$ImpChngYoy)
+#quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableCanadaIm <- summarytableCanadaIm %>%
+  filter(abs(ImpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+plotCanIm <- ggplot(summarytableCanadaIm, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ImpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(title="YoY Total Value Change Canada - Import",
+       x="Product Group",
+       y="Change in Import Value",
+       Color=c("Year"))
+```
+
+
+
+```{r, echo=FALSE, fig.align="center"}
+
+# Second Russia
+
+# Export Analysis
+
+summarytableRussianEx <- export_jTableMELTED %>%
+  filter(Country=="Russian") %>%
+  group_by(X__2, year) %>%
+  summarise(ExportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ExpPercChngYoY = (ExportValue - lag(ExportValue))/lag(ExportValue)*100) %>%
+  mutate(ExpChngYoy=((ExportValue - lag(ExportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableRussianEx$ExpChngYoy)
+#median(summarytableRussianEx$ExpChngYoy)
+#sd(summarytableRussianEx$ExpChngYoy)
+#quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableRussianEx <- summarytableRussianEx %>%
+  filter(abs(ExpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+plotRusEx <- ggplot(summarytableRussianEx, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ExpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(title="YoY Total Value Change Russia - Export",
+       x="Product Group",
+       y="Change in Export Value",
+       Color=c("Year"))
+
+
+
+# Import Analysis
+
+
+summarytableRussianIm <- import_jTableMELTED %>%
+  filter(Country=="Russian") %>%
+  group_by(X__2, year) %>%
+  summarise(ImportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ImpPercChngYoY = (ImportValue - lag(ImportValue))/lag(ImportValue)*100) %>%
+  mutate(ImpChngYoy=((ImportValue - lag(ImportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableRussianIm$ImpChngYoy)
+#median(summarytableRussianIm$ImpChngYoy)
+#sd(summarytableRussianIm$ImpChngYoy)
+#quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableRussianIm <- summarytableRussianIm %>%
+  filter(abs(ImpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+plotRusIm <- ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ImpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(title="YoY Total Value Change Russia - Import",
+       x="Product Group",
+       y="Change in Import Value",
+       Color=c("Year")) 
+```
+
+```{r, echo=FALSE, fig.height=7, fig.width=10, fig.align="center"}
+
+plotCanEx
+plotCanIm
+plotRusEx
+plotRusIm
+
+#grid.arrange(plotCanEx, plotCanIm,  nrow = 1)
+#grid.arrange(plotRusEx, plotRusIm,  nrow = 1)
+#fig.height=8, fig.width=16
+```
+
+It is concluded in above graphs that;
+
+* The observations of change of export to Canada in 2015 and 2017 are due to export of "Iron and Steel".
+* The observation of change of import from Canada in 2017 is due to import of "Natural or cultured pearls...".
+* The decrease in export to Russia in 2015 drives by "Vehicles other than railway..".
+* The decrease in export to Russia in 2016 and increase in 2017 is the effect of "Edible fruits and vegetables".
+* Imports from Russia deviates due to "Commodities not elsewhere speecified".
+
+Besides this analysis, we can discover more on this topic with different perspectives. To do this, we decided to build up shiny app with dependents of Country, Product and Year. Please follow the link to access to Shiny app.
+__[Link](https://groupfour.shinyapps.io/tradeOrg)__ 
+
+
+![Edible vegetable export to Russia](C:\Users\emrek\Google Drive\BDA\503-EssentialsOfDataAnalytics\GitHub\gpj18-group_four\images\imageShiny1.png)
+
+This image taken from Shiny app and presents the trade values of edible vegetables over years. It is observable that, in 2016 Turkey's edible vegetable export to Russia dramatically downs.
+
+![Russian sanctions to Turkey](C:\Users\emrek\Google Drive\BDA\503-EssentialsOfDataAnalytics\GitHub\gpj18-group_four\images\Capture.png)
+
+
+### Analysis of Trade Deficit by Countries and Years  
+
+
+To discover the country's effects to trade deficit, we calculated net_value which formulated as 'Export_value - Import_value'. And visualized that value on the basis of year.
+
+First, we grouped and manipulated the data and continued with visulation;
+
+```{r }
+export_Product_Group <- export_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Export_Quantity = Quantity,Export_Value =Values)
+
+import_Product_Group <- import_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Quantity = Quantity,Import_Value =Values)
+
+Export_Import_JTable <- export_Product_Group %>%
+  full_join(import_Product_Group,by=c("Country","Product_Group_Code","Product_Group_Name","year")) %>%
+mutate(Import_Quantity = replace(Import_Quantity, is.na(Import_Quantity),0),
+        Export_Quantity = replace(Export_Quantity, is.na(Export_Quantity),0))%>%
+select(Country,Product_Group_Code,Product_Group_Name,year,Export_Quantity,Import_Quantity,Export_Value,Import_Value)
+```
+
+
+```{r, fig.align="center"}
+####Net Value By Country###
+Net_Value_By_Country <- Export_Import_JTable %>%
+group_by(Country,year)%>%
+summarize (Export_Value = sum(Export_Value), Import_Value = sum(Import_Value), 
+           Net_Value = sum(Export_Value - Import_Value),Net_value_K = round((sum(Export_Value - Import_Value)/1000),digits=0)) 
+
+
+# Total Net Value fiiled with Country on the basis of Year #
+ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) + 
+  geom_bar(stat='identity', aes(fill=Country), width=.6,position = position_stack(reverse = TRUE))  +
+  labs(subtitle="Total Net Value fiiled with Country on the basis of Year ##", title= "Total Net Values") + 
+  coord_flip()+
+  theme(legend.position = "top")
+```
+
+As seen in the graph, only UK gives trade surplus for all years analysed. On the other hand China, Russia, Germany and USA have the most significant effect on trade deficit.
+
+#### An Alternative perspective to explore effects of countries
+
+The effects of countries are changing year by year. So that, as an alternative perspective we decided to take average net value for all countries in five years and normalized that value to show which country's effects are more than others.
+
+
+```{r , fig.align="center"}
+#Normalized of Average Values for five years
+Normalized_Values_By_Country <- Export_Import_JTable %>%
+  #filter (year == 2017)%>%
+  group_by(Country)%>%
+  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
+  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
+  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
+
+#Diverging Bars for normalized_Export_value
+ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , label=normalized_Net_value)) + 
+  geom_bar(stat='identity', aes(fill=value_Net_type), width=.5)  +
+  scale_fill_manual(name="Normalised Value", 
+                    labels = c("Above Average", "Below Average"), 
+                    values = c("above"="seagreen1", "below"="Red")) +  
+  labs(subtitle="Normalised Net Value for 5 years by Country'", 
+       title= "Diverging Bars") + 
+  coord_flip()
+```
+
+Considering the 5 years period, it is clear that China, Germany and Russia has contribution to trade deficit above average.
+
+We drilled down the analysis for the countries which decreases the average, namely China, Russia and Germany. For this aim, we build up shiny app to review the products by defining the Country and ratio showing cumulative percentage of share of products over total import value of this country.
+
+Please follow the link for interactive graph: __[Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)__
+
+Through the shiny app, it is understood that
+
+* 70% of import value from China is coming from 8 products 
+* 50% is from electrical machinery, equipments and machinery, mechanical appliances for China
+* %70 is from commodities and mineral fuels for import from Russia
+* Only commodities constitute 43% of total import of Russia
+* Vehicles other than railway is the top product imported from Germany
+* Machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
+
+#### PIE GRAFIGI DEGISTIRECEGIZ DİYE SHINY DEN IMAGE LARI ALMADIM HENUZ
+
+### Correlation of Trade Deficit with FX Rate and BIST100 index
+
+In order to understand the correlation between trade deficit/surplus and BIST100 index and USD/TL rates, we added this economic indicators to our analysis:
+
+First we read the USD and BIST100 index values and rename the columns; Then proceeded with drawing the graph to represent USD/TL rate, BIST100 index and Trade Deficit in time series.
+
+```{r, fig.align="center"}
+fileUSD= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/EVDS.xlsx"
+usdR <- read_excel(fileUSD, col_names=FALSE, skip=1)
+
+
+colnames(usdR) <- c("DateR","ExchangeRate")
+usd <- na.omit(usdR)
+remove(usdR)
+
+usdN<-usd %>% mutate(Date=dmy(DateR))
+usdM<- usdN %>% group_by(year=year(Date)) %>% summarise(Rate=mean(ExchangeRate)*10000000)
+
+
+fileBIST= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/BIST100.xlsx"
+bist100R <- read_excel(fileBIST, col_names=FALSE, skip=1)
+
+
+colnames(bist100R) <- c("Date",	"Year","Value",	"Açılış",	"Yüksek",	"Düşük",	"Hac.",	"Fark %")
+bist100 <- bist100R  %>% select(Date,Year,Value) %>% 
+  group_by(Year) %>% 
+  summarise(Value = mean(Value)*1000)
+```
+
+
+```{r, fig.align="center"}
+sumImport<- import_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
+sumExport<- export_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
+joinedTableDeficit<-sumExport %>%  inner_join(sumImport,by="Country") %>%
+  mutate(Value_2013=Value_2013.y-Value_2013.x,Value_2014=Value_2014.y-Value_2014.x, Value_2015=Value_2015.y-Value_2015.x, Value_2016=Value_2016.y-Value_2016.x,
+         Value_2017=Value_2017.y-Value_2017.x) %>%
+  select(Country, Value_2013, Value_2014, Value_2015, Value_2016, Value_2017)
+
+joinedTableDeficitMelt <- melt(joinedTableDeficit, id = c("Country"))
+deficitPerCountry<-joinedTableDeficitMelt %>% mutate(year = case_when( variable == "Value_2013" ~ 2013,
+                                                                       variable == "Value_2014" ~ 2014,
+                                                                       variable == "Value_2015" ~ 2015,
+                                                                       variable == "Value_2016" ~ 2016,
+                                                                       variable == "Value_2017" ~ 2017)) %>%
+  select(Country,year,value)
+
+deficitPerYear <- deficitPerCountry %>%
+  group_by(year) %>% summarise(value=sum(value))
+
+
+p<-ggplot() + 
+  geom_line(data=usdM,aes(x=year, y=Rate,group = 1, colour="USD_TL_Rate"))+
+  geom_line(data=deficitPerYear,aes(x=year, y=value,group = 1, colour="Trade_Deficit"))+
+  geom_line(data=bist100,aes(x=Year, y=Value,group = 1,colour="BIST100_Index")) +
+  scale_colour_manual(name="Indicators",values=c(USD_TL_Rate="red", Trade_Deficit="blue", BIST100_Index="purple"))
+  
+
+print(p)
+
+```
+
+It is concluded that trade deficit has negatively correlated with USD/TL rate between 2013 and 2016 as expected and for the year 2017 we saw the effect of stagflation - while the USD/TL rate increasing (accordingly we know that inflation rate is strongly positively correlatied with the inflation rate (inf rate: 2015-12:5.71%, 2016-12:9.94%, 2017-12:15.47%)) and weak or negative economic growth. 
+Besides, there is not a direct correlation between BIST100 index and Trade Deficit Values.
+
+## Conclusion
+
+
+
+
+
+## References
+
+
+
