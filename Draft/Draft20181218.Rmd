@@ -6,11 +6,13 @@ output:
   html_document:
     toc: true
     toc_float:
-      collapsed: true
+      collapsed: false
       smooth_scroll: false
     number_sections: false
     df_print: paged
     code_folding: hide
+    theme: journal
+    #highlight: tango
 
 ---
 # {.tabset .tabset-fade .tabset-pills}
@@ -478,6 +480,7 @@ pim1_table<-imptable1%>%
 
 treemap(pim1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_count",title="Total Import Percentage on Countries",
         fontsize.title = 17,type="value",palette = "Set1")
+
 ```
 
 As seen above, Turkeys' biggest trade partners are China, Germany, Russia and US at import side while they are Germany, UK, Italy and USA at export side. Germany and USA are the 2 top countries seen in both directions of trade. 
@@ -727,8 +730,7 @@ It is concluded in above graphs that;
 * The decrease in export to Russia in 2016 and increase in 2017 is the effect of "Edible fruits and vegetables".
 * Imports from Russia deviates due to "Commodities not elsewhere speecified".
 
-Besides this analysis, we can discover more on this topic with different perspectives. To do this, we decided to build up shiny app with dependents of Country, Product and Year. Please follow the link to access to Shiny app.
-__[Link](https://groupfour.shinyapps.io/tradeOrg)__ 
+Besides this analysis, we can discover more on this topic with different perspectives. To do this, we decided to build up shiny app with dependents of Country, Product and Year. Please follow the link to access to Shiny app. ***[Link](https://groupfour.shinyapps.io/tradeOrg)***
 
 
 ![Edible vegetable export to Russia](C:\Users\emrek\Google Drive\BDA\503-EssentialsOfDataAnalytics\GitHub\gpj18-group_four\images\imageShiny1.png)
@@ -811,7 +813,7 @@ Considering the 5 years period, it is clear that China, Germany and Russia has c
 
 We drilled down the analysis for the countries which decreases the average, namely China, Russia and Germany. For this aim, we build up shiny app to review the products by defining the Country and ratio showing cumulative percentage of share of products over total import value of this country.
 
-Please follow the link for interactive graph: __[Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)__
+Please follow the link for interactive graph: ***[Link](https://groupfour.shinyapps.io/tradeOrgProAnly/)***
 
 Through the shiny app, it is understood that
 
