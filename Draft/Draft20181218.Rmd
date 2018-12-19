@@ -6,8 +6,8 @@ output:
   html_document:
     toc: true
     toc_float:
-      collapsed: false
-      smooth_scroll: false
+      collapsed: true
+      smooth_scroll: true
     number_sections: false
     df_print: paged
     code_folding: hide
