@@ -1,0 +1,169 @@
+---
+title: "Trademap_Data_Analysis"
+author: "Muharrem Çakır"
+date: "14 Aralık 2018"
+output: html_document
+---
+
+## Define Libraries to use and get Data from github repository
+First of all we define all package which are used for different aims below. After that we read four data sources which are stored as rds format in github and assigned to export_jTable, import_jTable,export_jTableMELTED, import_jTableMELTED respectively. 
+we grouped data by 2 digit product code is named as 'Product Group Code' and summarize Quantity and value columns by country, year and  Product Group Code. 
+```{r}
+
+library(shiny)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(leaflet)
+library(reshape2)
+library(ggplot2)
+library(data.table)
+
+githubURL_export <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTable.rds?raw=true")
+githubURL_import <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTable.rds?raw=true")
+githubURL_exportMELTED <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/export_jTableMELTED.rds?raw=true")
+githubURL_importMELTED <- ("https://github.com/MEF-BDA503/gpj18-group_four/blob/master/import_jTableMELTED.rds?raw=true")
+
+export_jTable<- readRDS(url(githubURL_export))
+import_jTable<- readRDS(url(githubURL_import))
+export_jTableMELTED<- readRDS(url(githubURL_exportMELTED))
+import_jTableMELTED<- readRDS(url(githubURL_importMELTED))
+
+rm(githubURL_export)
+rm(githubURL_import)
+rm(githubURL_exportMELTED)
+rm(githubURL_importMELTED)
+
+
+
+export_Product_Group <- export_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Export_Quantity = Quantity,Export_Value =Values)
+
+import_Product_Group <- import_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Value =Values)
+
+Export_Import_JTable <- export_Product_Group %>%
+  full_join(import_Product_Group,by=c("Country","Product_Group_Code","Product_Group_Name","year")) %>%
+mutate(Import_Quantity = replace(Import_Quantity, is.na(Import_Quantity),0),
+        Export_Quantity = replace(Export_Quantity, is.na(Export_Quantity),0))%>%
+select(Country,Product_Group_Code,Product_Group_Name,year,Export_Quantity,Import_Quantity,Export_Value,Import_Value)
+```
+
+
+## Calculate Net_Value basis Country and year  
+
+To discovery that counrty's effects to current deficit we calculate net_value which formule is 'Export_value - Import_value'. And visualize that value on the basis of year
+
+```{r}
+####Net Value By Country###
+Net_Value_By_Country <- Export_Import_JTable %>%
+group_by(Country,year)%>%
+summarize (Export_Value = sum(Export_Value), Import_Value = sum(Import_Value), 
+           Net_Value = sum(Export_Value - Import_Value),Net_value_K = round((sum(Export_Value - Import_Value)/1000),digits=0)) 
+
+
+# Total Net Value fiiled with Country on the basis of Year #
+ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) + 
+  geom_bar(stat='identity', aes(fill=Country), width=.6,position = position_stack(reverse = TRUE))  +
+  labs(subtitle="## Total Net Value fiiled with Country on the basis of Year ##", title= "Total Net Values") + 
+  coord_flip()+
+  theme(legend.position = "top")
+```
+
+## An Alternative perspective to explore effects of countries
+
+The effects of countries may be change year by year. So that as an alternative perspective we could average net value for all countries in five years and normalized that value to show which country's effects are more than others.
+It is clear that China,Germany and Russia are more effect than others.
+```{r }
+#Normalized of Average Values for five years
+Normalized_Values_By_Country <- Export_Import_JTable %>%
+  group_by(Country)%>%
+  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
+  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
+  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
+
+#Diverging Bars for normalized_Export_value
+ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , label=normalized_Net_value)) + 
+  geom_bar(stat='identity', aes(fill=value_Net_type), width=.5)  +
+  scale_fill_manual(name="Normalised Value", 
+                    labels = c("Above Average", "Below Average"), 
+                    values = c("above"="seagreen1", "below"="Red")) +  
+  labs(subtitle="Normalised Net Value for 5 years by Country'", 
+       title= "Diverging Bars") + 
+  coord_flip()
+```
+## Most effective products which increase import values
+
+```{r}
+Normalized_Values_By_Country <- Export_Import_JTable %>%
+  group_by(Country)%>%
+  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
+  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
+  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
+
+Country_type <- Normalized_Values_By_Country%>%
+   select( Country, value_Net_type)
+
+import_Product_Group  <- import_Product_Group %>%
+left_join(Country_type,value_Net_type,by = "Country") 
+
+Import_Value_by_product <- import_Product_Group %>%
+  filter (value_Net_type == "below" )%>%
+    group_by(Country,Product_Group_Code,Product_Group_Name)%>%
+  summarize (Average_Import_Value = mean(Import_Value)) 
+
+Import_Value_by_product<- Import_Value_by_product %>%
+  group_by(Country)%>%
+  mutate(Total_Average_Import_Value = sum(Average_Import_Value))
+  
+Import_Value_by_product <- Import_Value_by_product %>%
+  mutate(Average_Import_pct = round((Average_Import_Value / Total_Average_Import_Value)*100,2))%>% 
+  arrange(Country,desc(Average_Import_pct))
+
+Import_Value_by_product<- Import_Value_by_product %>%
+  group_by(Country) %>% 
+  mutate(Cum_Import_Pct = cumsum(Average_Import_pct)) 
+
+
+```
+#K-means Clustering
+```{r}
+country_year<-export_Product_Group %>%
+filter(Export_Value > 0) %>%
+group_by(Country,year)%>%
+summarise(Adet=n(), Toplam = sum(Export_Value))
+
+#country_Adet <-data.table::dcast(country_year, Country ~ year , value.var = c("Adet","Toplam"))
+
+country_Cluster <-dcast(country_year, Country ~ year , value.var = "Toplam") %>%
+   rename(Toplam_2013 = "2013") %>%
+   rename(Toplam_2014 = "2014") %>%
+   rename(Toplam_2015 = "2015") %>%
+   rename(Toplam_2016 = "2016") %>%
+   rename(Toplam_2017 = "2017") 
+
+Normalize_country_Cluster<-country_Cluster%>%
+mutate(normalized_2013 =  round((Toplam_2013  - mean(Toplam_2013))/sd(Toplam_2013 ),2)) %>%
+mutate(normalized_2014 =  round((Toplam_2014  - mean(Toplam_2014))/sd(Toplam_2014 ),2)) %>%
+mutate(normalized_2015 =  round((Toplam_2015  - mean(Toplam_2015))/sd(Toplam_2015 ),2)) %>%
+mutate(normalized_2016 =  round((Toplam_2016  - mean(Toplam_2016))/sd(Toplam_2016 ),2)) %>%
+mutate(normalized_2017 =  round((Toplam_2017  - mean(Toplam_2017))/sd(Toplam_2017 ),2)) %>%
+select(Country,normalized_2013,normalized_2014,normalized_2015,normalized_2016,normalized_2017)
+
+
+set.seed(20)
+Cluster <- kmeans(Normalize_country_Cluster[, 2:6], 2, nstart = 20)
+
+head(Cluster)
+
+Normalize_country_Cluster$group<- as.factor(Cluster$cluster)
+
+ggplot(Normalize_country_Cluster, aes(normalized_2016, normalized_2017, color = Normalize_country_Cluster$group)) + geom_point()
+
+```
+
+
