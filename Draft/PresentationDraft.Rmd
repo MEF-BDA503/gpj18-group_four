@@ -1,0 +1,437 @@
+---
+title: "Analysis of Turkey's Trade with Selected Countries"
+author: "Group Fou\\*R*"
+date: Dec 26^th^, 2018
+output: 
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+    template: quarterly-report.html
+    
+logo: channel4_logo.jpg
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, include=FALSE, message=FALSE, warning=FALSE}
+library(shiny)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(leaflet)
+library(reshape2)
+library(gridExtra)
+library(lubridate)
+library(plotrix)
+library(treemap)
+```
+
+
+## Explanation of Raw Data
+
+- 10 countries’ trade data against Turkey from [Trademap.org](https://trademap.org/Index.aspx) as 4 seperate excel tables, Export&Import Quantity and Export&Import Values
+
+```{r, include=FALSE}
+PATH <-"C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/Raw Data"
+setwd(PATH)
+
+getDataSet <- function(pPattern){
+  nm <- list.files(path = PATH, pattern = pPattern)  
+  if (exists("resultDataset")){
+    rm("resultDataset")
+  }
+  for (file in nm){
+    if (!exists("resultDataset")){
+      resultDataset <- read_excel(file, col_names=FALSE, skip=1)
+    }
+    else{
+      temp_dataset <-read_excel(file, col_names=FALSE, skip=1)
+      resultDataset<-rbind(resultDataset, temp_dataset)
+      rm(temp_dataset)
+    }
+    
+  }
+  return(resultDataset)
+  
+}
+
+
+import_quantity_dataset <- getDataSet('*.mport.*uant.*')
+import_value_dataset <- getDataSet('*.mport.*alu.*')
+export_quantity_dataset <- getDataSet('*.xport.*uant.*')
+export_value_dataset <- getDataSet('*.xport.*alu.*')
+
+colnames(import_quantity_dataset) <- c("Country","Product_Code","Product_Label","Quantity_2013","Unit1","Quantity_2014","Unit2","Quantity_2015","Unit3","Quantity_2016","Unit4","Quantity_2017","Unit5")
+colnames(import_value_dataset) <- c("Country","Product_Code","Product_Label","Value_2013","Value_2014","Value_2015","Value_2016","Value_2017")
+colnames(export_quantity_dataset) <- c("Country","Product_Code","Product_Label","Quantity_2013","Unit1","Quantity_2014","Unit2","Quantity_2015","Unit3","Quantity_2016","Unit4","Quantity_2017","Unit5")
+colnames(export_value_dataset) <- c("Country","Product_Code","Product_Label","Value_2013","Value_2014","Value_2015","Value_2016","Value_2017")
+
+import_quantity_dataset$Product_Code<- gsub("'", "", import_quantity_dataset$Product_Code)
+import_value_dataset$Product_Code<- gsub("'", "",import_value_dataset$Product_Code)
+export_quantity_dataset$Product_Code<- gsub("'", "",export_quantity_dataset$Product_Code)
+export_value_dataset$Product_Code<- gsub("'", "",export_value_dataset$Product_Code)
+
+
+```
+
+
+
+```{r}
+glimpse(export_quantity_dataset)
+
+```
+
+
+
+## Explanation of Raw Data
+
+
+```{r}
+
+glimpse(export_value_dataset)
+```
+
+## Data Preparation | Joining Quantity, Value Data, Product Labels with 2 Digit Product Codes 
+
+```{r, include=FALSE}
+#read the ProductCodes excel
+file = "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/2digitproductlist.xlsx"
+prdCode <- read_excel(file, col_names=FALSE, skip=1)
+prdCode$X__1 <- gsub("'", "", prdCode$X__1)
+
+# join the import values and quantities
+import_jTable <- import_quantity_dataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014, Quantity_2015, Quantity_2016, Quantity_2017) %>% 
+  full_join(import_value_dataset,by = c("Country","Product_Code"))  
+# seperate the first 2 digits of 4 digit product code and join the 2digit product code excel 
+import_jTable <- import_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+import_jTable <- left_join(import_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+  
+# join the export values and quantities
+export_jTable <- export_quantity_dataset %>% 
+  mutate( Unit= coalesce(Unit1,Unit2 ,Unit3 , Unit4,Unit5)) %>%
+  select( Country, Product_Code , Unit, Quantity_2013, Quantity_2014,Quantity_2015,Quantity_2016,Quantity_2017) %>% 
+  full_join(export_value_dataset,by = c("Country","Product_Code"))  
+# seperate the first 2 digits of 4 digit product code and join the 2digit product code excel
+export_jTable <- export_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
+export_jTable <- left_join(export_jTable,prdCode,by =c("PcodeTwo"="X__1") )
+```
+
+```{r}
+glimpse(export_jTable)
+```
+
+## Data Preparation | Collating Same Type of Variables
+
+```{r, include=FALSE}
+export_jTable <- export_jTable %>% filter(!grepl("TOTAL", Product_Code))
+import_jTable <- import_jTable %>% filter(!grepl("TOTAL", Product_Code))
+
+#create new objects for each years' quantity
+q2013<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2013) %>% mutate(year="2013") %>% rename("Quantity"=Quantity_2013)
+q2014<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2014) %>% mutate(year="2014") %>% rename("Quantity"=Quantity_2014)
+q2015<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2015) %>% mutate(year="2015") %>% rename("Quantity"=Quantity_2015)
+q2016<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2016) %>% mutate(year="2016") %>% rename("Quantity"=Quantity_2016) 
+q2017<-import_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2017) %>% mutate(year="2017") %>% rename("Quantity"=Quantity_2017)
+
+#bind the objects
+importQuant <- bind_rows(q2013,q2014,q2015,q2016,q2017)
+
+#create new objects for each years' values
+v2013<-import_jTable %>% select(Country,Product_Code, Value_2013) %>% rename("Values"=Value_2013) %>% mutate(year="2013")
+v2014<-import_jTable %>% select(Country,Product_Code, Value_2014) %>% rename("Values"=Value_2014) %>% mutate(year="2014")
+v2015<-import_jTable %>% select(Country,Product_Code, Value_2015) %>% rename("Values"=Value_2015) %>% mutate(year="2015")
+v2016<-import_jTable %>% select(Country,Product_Code, Value_2016) %>% rename("Values"=Value_2016) %>% mutate(year="2016") 
+v2017<-import_jTable %>% select(Country,Product_Code, Value_2017) %>% rename("Values"=Value_2017) %>% mutate(year="2017")
+
+#bind the objects
+importValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
+
+#join binded quantity and value
+import_jTableMELTED <- importQuant %>% left_join(importValues, by=c("Country","Product_Code","year"))
+
+
+#Repeat with export table
+
+q2013<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2013) %>% mutate(year="2013") %>% rename("Quantity"=Quantity_2013)
+q2014<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2014) %>% mutate(year="2014") %>% rename("Quantity"=Quantity_2014)
+q2015<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2015) %>% mutate(year="2015") %>% rename("Quantity"=Quantity_2015)
+q2016<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2016) %>% mutate(year="2016") %>% rename("Quantity"=Quantity_2016) 
+q2017<-export_jTable %>% select(Country, PcodeTwo, X__2 ,Product_Code, Product_Label, Unit, Quantity_2017) %>% mutate(year="2017") %>% rename("Quantity"=Quantity_2017)
+
+exportQuant <- bind_rows(q2013,q2014,q2015,q2016,q2017)
+
+v2013<-export_jTable %>% select(Country,Product_Code, Value_2013) %>% rename("Values"=Value_2013) %>% mutate(year="2013")
+v2014<-export_jTable %>% select(Country,Product_Code, Value_2014) %>% rename("Values"=Value_2014) %>% mutate(year="2014")
+v2015<-export_jTable %>% select(Country,Product_Code, Value_2015) %>% rename("Values"=Value_2015) %>% mutate(year="2015")
+v2016<-export_jTable %>% select(Country,Product_Code, Value_2016) %>% rename("Values"=Value_2016) %>% mutate(year="2016") 
+v2017<-export_jTable %>% select(Country,Product_Code, Value_2017) %>% rename("Values"=Value_2017) %>% mutate(year="2017")
+
+exportValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
+
+export_jTableMELTED <- exportQuant %>% left_join(exportValues, by=c("Country","Product_Code","year"))
+```
+
+```{r}
+glimpse(export_jTableMELTED)
+```
+
+
+## Analysis | Breakdown of Total Export and Import of Turkey Over Countries
+
+```{r, include=FALSE}
+exptable1=export_jTableMELTED%>%group_by(Country)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+
+pex1_table<-exptable1%>%
+  mutate(perc_count=(co_total/sum(exptable1$co_total))*100)%>%
+  select(Country,co_total,perc_count)
+
+
+
+# TREEMAP FOR IMPORT
+
+imptable1=import_jTableMELTED%>%group_by(Country)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+
+pim1_table<-imptable1%>%
+  mutate(perc_count=(co_total/sum(imptable1$co_total))*100)%>%
+  select(Country,co_total,perc_count)
+
+
+
+```
+
+<div class="columns-2">
+
+```{r, fig.height=5, fig.width=4.5}
+treemap(pex1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_count",title="Total Export Percentage on Countries",
+        fontsize.title = 17,type="value",palette = "Set1")
+```
+
+```{r, fig.height=5, fig.width=4.5}
+treemap(pim1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_count",title="Total Import Percentage on Countries",
+        fontsize.title = 17,type="value",palette = "Set1")
+```
+
+</div>
+
+## Analysis | Breakdown of Total Export and Import of Turkey Over Countries
+
+```{r, fig.align='center'}
+# Export Values in $ 
+ttable=export_jTableMELTED%>%group_by(Country,year)%>%
+  summarise(co_total=sum(Values,na.rm = TRUE))%>%
+  arrange(desc(co_total,year))
+#Import Values in $
+vtable=import_jTableMELTED%>%group_by(Country,year)%>%summarise(co_total=sum(Values,na.rm = TRUE))%>%arrange(desc(co_total,year))
+
+#Import & Export percentage of Countries
+
+a<-ggplot(data=vtable, aes(x=Country, y=co_total,fill=year)) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black")+
+  ggtitle("Import Values")
+
+
+b<-ggplot(data=ttable, aes(x=Country, y=co_total,fill=year)) +
+  geom_bar(stat="identity", position=position_dodge(), colour="black")+ggtitle("Export Values")
+
+
+
+grid.arrange(a,b,  nrow = 2)
+```
+
+## Analysis | Year over Year Changes in Trade Values
+
+```{r, message=FALSE, fig.align='center'}
+tableExport <- export_jTableMELTED %>% 
+  group_by(Country, year) %>%
+  summarise(totalExpV=sum(Values,na.rm=TRUE)) %>%
+  arrange(Country, year) %>%
+  mutate(ExpValChng = (totalExpV - lag(totalExpV))/lag(totalExpV)*100)
+
+
+tableImport <- import_jTableMELTED %>% 
+  group_by(Country, year) %>%
+  summarise(totalImpV=sum(Values,na.rm=TRUE)) %>%
+  arrange(Country, year) %>%
+  mutate(ImpValChng = (totalImpV - lag(totalImpV))/lag(totalImpV)*100)
+
+table <- full_join(tableExport,tableImport) %>%
+  select(Country, year, Export="ExpValChng", Import = "ImpValChng") %>%
+  melt(id=c("Country", "year")) %>%
+  filter(year!=2013)
+
+ggplot(table, aes(x=year)) +
+  geom_point(aes(y=value, color=Country, shape=variable), size=4) + 
+  facet_grid(~variable) +
+   labs(
+    x="Year",
+    y="% Change in  Value",
+    shape=c("Trade Type"))
+```
+
+## Analysis | Year over Year Changes in Trade Values - Exports to Canada
+
+```{r, fig.align='center', fig.height=5, fig.width=10}
+# Canada and Russia significantly deviates. Investigate these countries in detail with traded products
+
+# First Canada
+
+# Export Analysis
+
+summarytableCanadaEx <- export_jTableMELTED %>%
+  filter(Country=="Canada") %>%
+  group_by(X__2, year) %>%
+  summarise(ExportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ExpPercChngYoY = (ExportValue - lag(ExportValue))/lag(ExportValue)*100) %>%
+  mutate(ExpChngYoy=((ExportValue - lag(ExportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableCanadaEx$ExpChngYoy)
+#median(summarytableCanadaEx$ExpChngYoy)
+#sd(summarytableCanadaEx$ExpChngYoy)
+#quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableCanadaEx$ExpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableCanadaEx <- summarytableCanadaEx %>%
+  filter(abs(ExpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+ggplot(summarytableCanadaEx, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ExpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(
+       x="Product Group",
+       y="Change in Export Value",
+       Color=c("Year"))
+```
+
+## Analysis | Year over Year Changes in Trade Values - Imports From Canada
+
+```{r, fig.align='center', fig.height=5, fig.width=10}
+# Import Analysis
+
+
+summarytableCanadaIm <- import_jTableMELTED %>%
+  filter(Country=="Canada") %>%
+  group_by(X__2, year) %>%
+  summarise(ImportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ImpPercChngYoY = (ImportValue - lag(ImportValue))/lag(ImportValue)*100) %>%
+  mutate(ImpChngYoy=((ImportValue - lag(ImportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableCanadaIm$ImpChngYoy)
+#median(summarytableCanadaIm$ImpChngYoy)
+#sd(summarytableCanadaIm$ImpChngYoy)
+#quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableCanadaIm$ImpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableCanadaIm <- summarytableCanadaIm %>%
+  filter(abs(ImpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+ggplot(summarytableCanadaIm, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ImpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(
+       x="Product Group",
+       y="Change in Import Value",
+       Color=c("Year"))
+```
+
+## Analysis | Year over Year Changes in Trade Values - Exports to Russia
+
+```{r, fig.align='center', fig.height=5, fig.width=10}
+summarytableRussianEx <- export_jTableMELTED %>%
+  filter(Country=="Russian") %>%
+  group_by(X__2, year) %>%
+  summarise(ExportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ExpPercChngYoY = (ExportValue - lag(ExportValue))/lag(ExportValue)*100) %>%
+  mutate(ExpChngYoy=((ExportValue - lag(ExportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableRussianEx$ExpChngYoy)
+#median(summarytableRussianEx$ExpChngYoy)
+#sd(summarytableRussianEx$ExpChngYoy)
+#quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) - quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableRussianEx$ExpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableRussianEx <- summarytableRussianEx %>%
+  filter(abs(ExpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+ggplot(summarytableRussianEx, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ExpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(
+       x="Product Group",
+       y="Change in Export Value",
+       Color=c("Year"))
+```
+
+
+## Analysis | Year over Year Changes in Trade Values - Imports From Russia
+
+```{r, fig.align='center', fig.height=5, fig.width=10}
+summarytableRussianIm <- import_jTableMELTED %>%
+  filter(Country=="Russian") %>%
+  group_by(X__2, year) %>%
+  summarise(ImportValue=sum(Values)) %>%
+  arrange(X__2, year) %>%
+  mutate(ImpPercChngYoY = (ImportValue - lag(ImportValue))/lag(ImportValue)*100) %>%
+  mutate(ImpChngYoy=((ImportValue - lag(ImportValue)))) %>%
+  filter(year!=2013) 
+
+
+#mean(summarytableRussianIm$ImpChngYoy)
+#median(summarytableRussianIm$ImpChngYoy)
+#sd(summarytableRussianIm$ImpChngYoy)
+#quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25, 0.50, 0.75, 1))
+IQR= quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) - quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25))
+altsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.25)) - (2*IQR)
+ustsinir=quantile(summarytableRussianIm$ImpChngYoy, probs = c(0.75)) + (2*IQR)
+
+
+summarytableRussianIm <- summarytableRussianIm %>%
+  filter(abs(ImpChngYoy)>max(abs(altsinir),ustsinir))
+
+
+ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 30))) +
+  geom_point(aes(y=ImpChngYoy, color=year), size=4) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_grid (~year) +
+  facet_grid(rows = vars(year)) +
+  labs(
+       x="Product Group",
+       y="Change in Import Value",
+       Color=c("Year"))
+```
+
+Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrg)***

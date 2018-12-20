@@ -15,6 +15,11 @@ output:
     #highlight: tango
 
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 # {.tabset .tabset-fade .tabset-pills}
 
 ## Abstract 
@@ -318,6 +323,8 @@ import_value_dataset$Product_Code<- gsub("'", "",import_value_dataset$Product_Co
 export_quantity_dataset$Product_Code<- gsub("'", "",export_quantity_dataset$Product_Code)
 export_value_dataset$Product_Code<- gsub("'", "",export_value_dataset$Product_Code)
 
+
+
 ```
 
 
@@ -480,7 +487,6 @@ pim1_table<-imptable1%>%
 
 treemap(pim1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_count",title="Total Import Percentage on Countries",
         fontsize.title = 17,type="value",palette = "Set1")
-
 ```
 
 As seen above, Turkeys' biggest trade partners are China, Germany, Russia and US at import side while they are Germany, UK, Italy and USA at export side. Germany and USA are the 2 top countries seen in both directions of trade. 
@@ -717,6 +723,8 @@ plotCanIm
 plotRusEx
 plotRusIm
 
+
+#multiplot(plotCanEx, plotCanIm, plotRusEx, plotRusIm, cols=2)
 #grid.arrange(plotCanEx, plotCanIm,  nrow = 1)
 #grid.arrange(plotRusEx, plotRusIm,  nrow = 1)
 #fig.height=8, fig.width=16
