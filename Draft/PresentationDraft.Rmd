@@ -399,7 +399,8 @@ ggplot(summarytableRussianEx, aes(x=substr(X__2, start = 1, stop = 30))) +
 
 ## Analysis | Year over Year Changes in Trade Values - Imports From Russia
 
-```{r, fig.align='center', fig.height=5, fig.width=10}
+
+```{r, fig.align='center', fig.height=4.5, fig.width=10}
 summarytableRussianIm <- import_jTableMELTED %>%
   filter(Country=="Russian") %>%
   group_by(X__2, year) %>%
@@ -433,5 +434,44 @@ ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 30))) +
        y="Change in Import Value",
        Color=c("Year"))
 ```
-
+<div class="centered" class="red2">
 Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrg)***
+</div>
+
+
+
+## Analysis of Trade Deficit by Countries and Years
+
+```{r, fig.align='center'}
+export_Product_Group <- export_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Export_Quantity = Quantity,Export_Value =Values)
+
+import_Product_Group <- import_jTableMELTED%>%
+group_by(Country,PcodeTwo,X__2,year)%>%
+summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
+rename(Product_Group_Code =PcodeTwo, Product_Group_Name = X__2,Import_Quantity = Quantity,Import_Value =Values)
+
+Export_Import_JTable <- export_Product_Group %>%
+  full_join(import_Product_Group,by=c("Country","Product_Group_Code","Product_Group_Name","year")) %>%
+mutate(Import_Quantity = replace(Import_Quantity, is.na(Import_Quantity),0),
+        Export_Quantity = replace(Export_Quantity, is.na(Export_Quantity),0))%>%
+select(Country,Product_Group_Code,Product_Group_Name,year,Export_Quantity,Import_Quantity,Export_Value,Import_Value)
+
+####Net Value By Country###
+Net_Value_By_Country <- Export_Import_JTable %>%
+group_by(Country,year)%>%
+summarize (Export_Value = sum(Export_Value), Import_Value = sum(Import_Value), 
+           Net_Value = sum(Export_Value - Import_Value),Net_value_K = round((sum(Export_Value - Import_Value)/1000),digits=0)) 
+
+
+# Total Net Value fiiled with Country on the basis of Year #
+ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) + 
+  geom_bar(stat='identity', aes(fill=Country), width=.6,position = position_stack(reverse = TRUE))  +
+  labs(title= "Total Net Values") + 
+  coord_flip()+
+  theme(legend.position = "top")
+```
+
+
