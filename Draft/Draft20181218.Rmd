@@ -269,6 +269,8 @@ library(gridExtra)
 library(lubridate)
 library(plotrix)
 library(treemap)
+library(cluster)
+library(factoextra)
 ```
 
 
@@ -958,7 +960,66 @@ In order to examine the details, we builded ***[Shiny](https://groupfour.shinyap
 
 ## K-Means Clustering
 
-cvv
+```{r}
+product_year<-export_Product_Group %>%
+filter(Export_Value > 0) %>%
+group_by(Product_Group_Name,year)%>%
+summarise(Adet=n(), Toplam = sum(Export_Value))
+
+#country_Adet <-data.table::dcast(country_year, Country ~ year , value.var = c("Adet","Toplam"))
+
+product_Cluster <-dcast(product_year, Product_Group_Name ~ year , value.var = "Toplam") %>%
+   rename(Toplam_2013 = "2013") %>%
+   rename(Toplam_2014 = "2014") %>%
+   rename(Toplam_2015 = "2015") %>%
+   rename(Toplam_2016 = "2016") %>%
+   rename(Toplam_2017 = "2017") 
+
+#Normalize_product_Cluster<-product_Cluster%>%
+#mutate(normalized_2013 =  round((Toplam_2013  - mean(Toplam_2013))/sd(Toplam_2013 ),2)) %>%
+#mutate(normalized_2014 =  round((Toplam_2014  - mean(Toplam_2014))/sd(Toplam_2014 ),2)) %>%
+#mutate(normalized_2015 =  round((Toplam_2015  - mean(Toplam_2015))/sd(Toplam_2015 ),2)) %>%
+#mutate(normalized_2016 =  round((Toplam_2016  - mean(Toplam_2016))/sd(Toplam_2016 ),2)) %>%
+#mutate(normalized_2017 =  round((Toplam_2017  - mean(Toplam_2017))/sd(Toplam_2017 ),2)) %>%
+#select(Product_Group_Name,normalized_2013,normalized_2014,normalized_2015,normalized_2016,normalized_2017)
+
+
+#set.seed(20)
+#Cluster <- kmeans(Normalize_product_Cluster[, 2:6], 4, nstart = 20)
+
+#head(Cluster)
+
+#Normalize_product_Cluster$group<- as.factor(Cluster$cluster)
+
+#ggplot(Normalize_product_Cluster, aes(normalized_2013,normalized_2014, color = Normalize_product_Cluster$group)) + geom_point()
+#ggplot(Normalize_product_Cluster, aes(normalized_2014,normalized_2015, color = Normalize_product_Cluster$group)) + geom_point()
+#ggplot(Normalize_product_Cluster, aes(normalized_2015,normalized_2016, color = Normalize_product_Cluster$group)) + geom_point()
+
+
+distance <- get_dist(product_Cluster)
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+
+
+k2 <- kmeans(product_Cluster[, 2:6], centers = 2, nstart = 25)
+str(k2)
+
+#fviz_cluster(k2, data = product_Cluster)
+
+
+set.seed(20)
+Cluster <- kmeans(product_Cluster[, 2:6], 4, nstart = 20)
+
+head(Cluster)
+
+product_Cluster$group<- as.factor(Cluster$cluster)
+
+ggplot(product_Cluster, aes(Toplam_2013,Toplam_2014, color = product_Cluster$group)) + geom_point()
+ggplot(product_Cluster, aes(Toplam_2014,Toplam_2015, color = product_Cluster$group)) + geom_point()
+ggplot(product_Cluster, aes(Toplam_2015,Toplam_2016, color = product_Cluster$group)) + geom_point()
+ggplot(product_Cluster, aes(Toplam_2016,Toplam_2017, color = product_Cluster$group)) + geom_point()
+
+```
+
 
 
 ## Conclusion
