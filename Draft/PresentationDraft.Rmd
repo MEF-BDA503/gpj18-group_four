@@ -29,15 +29,23 @@ library(treemap)
 
 ## Team Members & Abstract
 
-* [Busra Koc](https://mef-bda503.github.io/pj18-busraakoc/) 
+<div class="columns-2">
+
+* [Busra Koc](https://mef-bda503.github.io/pj18-busraakoc/)
 * [Emre Kemerci](https://mef-bda503.github.io/pj18-EmreKemerci/)
 * [Muharrem Cakir](https://mef-bda503.github.io/pj18-muharremcakir81/)
 * [Omer Bayir](https://mef-bda503.github.io/pj18-omerbayir/)
 * [Salih Ucar](https://mef-bda503.github.io/pj18-ucarsal/)
 
-
 In this term project, trade statistics data of Turkey against the G7 countries and 3 more countries (Russia, India, China) is analysed. The aim of the project is to analyze Turkey's export and import characteristics by product groups considering the trade value and quantities.
 
+The purpose of the analysis is to understand the Turkey's trade Statistics for two way and with ten important countries.
+
+Describe Turkey's the trade deficit with the country,year and product dimensions. Try to clear which factors effects deficit in trade, and is there relation deficit and other financials.
+
+A clear understanding of the data to see if we can locate useful insights about which products and countries will remain the deficit and wich of them will be strategic for Turkey
+
+</div>
 
 ## Explanation of Raw Data
 
@@ -88,7 +96,7 @@ export_value_dataset$Product_Code<- gsub("'", "",export_value_dataset$Product_Co
 
 
 
-```{r}
+```{r, fig.align='center'}
 glimpse(export_quantity_dataset)
 
 ```
@@ -98,7 +106,7 @@ glimpse(export_quantity_dataset)
 ## Explanation of Raw Data
 
 
-```{r}
+```{r, fig.align='center'}
 
 glimpse(export_value_dataset)
 ```
@@ -130,7 +138,7 @@ export_jTable <- export_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
 export_jTable <- left_join(export_jTable,prdCode,by =c("PcodeTwo"="X__1") )
 ```
 
-```{r}
+```{r, fig.align='center'}
 glimpse(export_jTable)
 ```
 
@@ -185,7 +193,7 @@ exportValues <- bind_rows(v2013,v2014,v2015,v2016,v2017)
 export_jTableMELTED <- exportQuant %>% left_join(exportValues, by=c("Country","Product_Code","year"))
 ```
 
-```{r}
+```{r, fig.align='center'}
 glimpse(export_jTableMELTED)
 ```
 
