@@ -463,7 +463,7 @@ Since the quantities have different respective units, it is not logical to comme
 
 Our analysis starts with to understandthe shares of trade volume of the selected 10 countries on Turkey's import and export. 
 
-```{r, fig.align="center"}
+```{r, fig.align="center", fig.height=4, fig.width=6}
 # TREEMAP FOR EXPORT
 
 exptable1=export_jTableMELTED%>%group_by(Country)%>%
@@ -495,7 +495,7 @@ As seen above, Turkeys' biggest trade partners are China, Germany, Russia and US
 
 When we breakdown this info to years, it is seen in below graphs that except Russia, fluctuations over years are not seem so significant but it is worth to deep dive Year over Year (YoY) changes.    
 
-```{r, fig.align="center"}
+```{r, fig.align="center", fig.height=6, fig.width=8 }
 # Export Values in $ 
 ttable=export_jTableMELTED%>%group_by(Country,year)%>%
   summarise(co_total=sum(Values,na.rm = TRUE))%>%
@@ -940,7 +940,7 @@ ggplot(melted_data, aes(Bins)) +
   geom_bar(aes(fill=year), width = 0.5) + 
   
   facet_wrap(~Country, scales = "free_x") +
-  labs(title="Number of Products according to ImportUnitPrice/ExportUnitPrice higher than 30 times",
+  labs(title="Number of Products whose ImportUnitPrice/ExportUnitPrice ratio more than 30",
        y="Number of Products",
        x="Bins of Ratio of ImportUnitPrice over ExportUnitPrice") +
   theme(axis.text.x = element_text(angle=90))
@@ -948,29 +948,38 @@ ggplot(melted_data, aes(Bins)) +
 
 As seen in the graph;
 
-* France, Germany, UK and US are the strongest countries in terms of buying products from Turkey, adding value to these products and selling back to Turkey.
+* France, Germany, UK and US are the strongest countries in terms of giving strong positive trade balance with variety of product groups while India is the weakest.  
 
 In order to examine the details, we builded ***[Shiny](https://groupfour.shinyapps.io/tradeOrgProUnitP/)*** app.
 
-* xxx
+* Highest ratio products for India is "Yeasts, active or inactive; other dead single-cell micro-organisms" and "Pharmaceutical preparations".
 
-* xxx
+* "Pharmaceutical preparations" is coming in top list for most of the countries. 
 
-* xxx
+* USA and UK have 47 and 42 products that have ratio more than 30 and these countries are top 2.
 
+## K-Means Clustering
+
+cvv
 
 
 ## Conclusion
 
-
+cvv
 
 
 
 ## References
+
 [TradeMap](https://trademap.org/Index.aspx)
+
 [TCMB](http://tcmb.gov.tr)
+
 [TUIK](http://www.tuik.gov.tr/)
+
 [Top 50 ggplot2 Visualizations](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
+
 [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)
+
 [R-statistics blog](https://www.r-statistics.com/tag/transpose/)
 
