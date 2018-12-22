@@ -926,11 +926,11 @@ melted_data <- joint_table %>% melt(id=c("Country","Product_Label","year","Ratio
 
 melted_data <- melted_data %>% mutate(Bins=0)
 melted_data$Bins <- cut(melted_data$Ratio, breaks=c(1,10,20,30,40,50,60,70,80,90,100,1000), labels=c("1-10","11-20","21-30","31-40","41-50","51-60","61-70","71-80","81-90","91-100","100+"))
-melted_data <- melted_data %>% filter((!is.na(Bins) & Bins!="1-10" &  Bins!="11-20" ) ) %>%  
+melted_data <- melted_data %>% filter((!is.na(Bins) & Bins!="1-10" &  Bins!="11-20" &  Bins!="21-30") ) %>%  
   select(Country,Product_Label, year, Ratio, Bins) 
 melted_data <- distinct(melted_data)
 
- # &  Bins!="21-30"
+ # 
 ```
 
 
@@ -940,7 +940,7 @@ ggplot(melted_data, aes(Bins)) +
   geom_bar(aes(fill=year), width = 0.5) + 
   
   facet_wrap(~Country, scales = "free_x") +
-  labs(title="Number of Products according to ImportUnitPrice/ExportUnitPrice higher than 20 times",
+  labs(title="Number of Products according to ImportUnitPrice/ExportUnitPrice higher than 30 times",
        y="Number of Products",
        x="Bins of Ratio of ImportUnitPrice over ExportUnitPrice") +
   theme(axis.text.x = element_text(angle=90))
