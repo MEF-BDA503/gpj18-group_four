@@ -75,7 +75,7 @@ ui <- fluidPage(
                   max = 50,
                   step = 0.25,
                   value = 1),
-      selectInput(inputId ="year",label = "Year:",choices = c(2013, 2014, 2015, 2016, 2017)),
+      selectInput(inputId ="year",label = "Year:",choices = c("All",2013, 2014, 2015, 2016, 2017)),
       selectInput(inputId = "Country", label = "Countries:",choices = c(Country)),
       sliderInput("RatioP",
                   "Ratio (Import Unit Price/Export Unit Price)<1",
@@ -107,12 +107,14 @@ server <- function(input, output,session) {
   
   output$distPlot <- renderPlot({
     modified_data <- melted_data
-    #if(input$Country[1] != "" ){
+    
     modified_data <- modified_data%>% filter(Country ==input$Country)
     
-    #}
+    if(input$year != "All" ){
+      modified_data <- modified_data %>% filter(year == input$year )
+      
+    }
     
-    modified_data <- modified_data %>% filter(year==input$year )
     modified_data <- modified_data %>% filter(Ratio>=input$Ratio )
     
     labels1<-substr(modified_data$Product_Label,1,20)
@@ -135,7 +137,11 @@ server <- function(input, output,session) {
     
     #}
     
-    modified_data <- modified_data %>% filter(year==input$year )
+    if(input$year != "All" ){
+      modified_data <- modified_data %>% filter(year == input$year )
+      
+    }
+    
     modified_data <- modified_data %>% filter(Ratio>=input$Ratio )
     
     
@@ -146,7 +152,11 @@ server <- function(input, output,session) {
     modified_data <- melted_data
     
     modified_data <- modified_data%>% filter(Country ==input$Country)
-    modified_data <- modified_data %>% filter(year==input$year )
+    if(input$year != "All" ){
+      modified_data <- modified_data %>% filter(year == input$year )
+      
+    }
+    
     modified_data <- modified_data %>% filter(Ratio>=input$RatioP & Ratio<=1 ) 
     
     labels1<-substr(modified_data$Product_Label,1,20)
@@ -163,7 +173,11 @@ server <- function(input, output,session) {
     modified_data <- joint_table
     
     modified_data <- modified_data%>% filter(Country ==input$Country)
-    modified_data <- modified_data %>% filter(year==input$year )
+    if(input$year != "All" ){
+      modified_data <- modified_data %>% filter(year == input$year )
+      
+    }
+    
     modified_data <- modified_data %>% filter(Ratio>=input$RatioP & Ratio<=1 ) 
     
     DT::datatable(modified_data[, , drop = FALSE])

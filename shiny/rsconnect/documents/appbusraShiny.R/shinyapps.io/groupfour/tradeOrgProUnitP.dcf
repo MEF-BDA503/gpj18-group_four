@@ -1,0 +1,13 @@
+name: tradeOrgProUnitP
+title: tradeOrgProUnitP
+username:
+account: groupfour
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 621980
+bundleId: 1779528
+url: https://groupfour.shinyapps.io/tradeOrgProUnitP/
+when: 1545476614.48634
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: a|app.R|muhShiny.R|report.html|report.Rmd
