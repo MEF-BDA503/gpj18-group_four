@@ -5,9 +5,9 @@ date: "December 2018"
 output:
   html_document:
     toc: true
-    toc_float:
-      collapsed: true
-      smooth_scroll: true
+    #toc_float:
+     # collapsed: true
+      #smooth_scroll: true
     number_sections: false
     df_print: paged
     code_folding: hide
@@ -17,10 +17,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo=TRUE)
 ```
 
+
 # {.tabset .tabset-fade .tabset-pills}
+
 
 ## Abstract 
 
@@ -825,14 +827,18 @@ Please follow the link for interactive graph: ***[Link](https://groupfour.shinya
 
 Through the shiny app, it is understood that
 
-* 70% of import value from China is coming from 8 products 
-* 50% is from electrical machinery, equipments and machinery, mechanical appliances for China
-* %70 is from commodities and mineral fuels for import from Russia
-* Only commodities constitute 43% of total import of Russia
-* Vehicles other than railway is the top product imported from Germany
-* Machinery, mechanical appliances are the second product imported from Germany and its share is so close to vehicles
+* 70% of import value from China is coming from 8 products while 50% is from electrical machinery, equipments and machinery, mechanical appliances
 
-#### PIE GRAFIGI DEGISTIRECEGIZ DİYE SHINY DEN IMAGE LARI ALMADIM HENUZ
+![Import from China](C:\Users\emrek\Google Drive\BDA\503-EssentialsOfDataAnalytics\GitHub\gpj18-group_four\images\ChinaImport.png)
+
+* Mineral fuels, mineral oils and products of their distillation constitute %21 of import from Russia, while the bigggest product group is classified as "Other""
+
+![Import from Russia](C:\Users\emrek\Google Drive\BDA\503-EssentialsOfDataAnalytics\GitHub\gpj18-group_four\images\RussiaImport.png)
+
+* Vehicles other than railway is the top product imported from Germany and mechanical and electronical machinery and equipments are followed it. 
+
+![Import from Germany](C:\Users\emrek\Google Drive\BDA\503-EssentialsOfDataAnalytics\GitHub\gpj18-group_four\images\GermanyImport.png)
+
 
 ### Correlation of Trade Deficit with FX Rate and BIST100 index
 
@@ -898,6 +904,62 @@ print(p)
 It is concluded that trade deficit has negatively correlated with USD/TL rate between 2013 and 2016 as expected and for the year 2017 we saw the effect of stagflation - while the USD/TL rate increasing (accordingly we know that inflation rate is strongly positively correlatied with the inflation rate (inf rate: 2015-12:5.71%, 2016-12:9.94%, 2017-12:15.47%)) and weak or negative economic growth. 
 Besides, there is not a direct correlation between BIST100 index and Trade Deficit Values.
 
+### Analysis of the Import Unit Prices and Export Unit Prices
+
+In order to understand the products which Turkey is both exporting and importing but importing with more value addition, we calculated unit prices on each product for both import and export and we followed finding the ratio of Import Unit Price / Export Unit Price and groping them in bins of 10.  
+
+```{r}
+
+unit_price_import <- import_jTableMELTED %>% select(Country,Product_Label, X__2 ,Product_Label, Product_Label, Unit, Quantity, year, Values) %>% 
+  mutate(Unit_Price = Values/Quantity)
+unit_price_export <- export_jTableMELTED %>% select(Country,Product_Label, X__2 ,Product_Label, Product_Label, Unit, Quantity, year, Values) %>% 
+  mutate(Unit_Price = Values/Quantity)
+
+unit_price_import <- unit_price_import %>% mutate(type="Import") 
+unit_price_export <- unit_price_export %>% mutate(type="Export")
+
+joint_table <- unit_price_export %>% select(Country,Product_Label,year,Export_Unit_Price=Unit_Price) %>% 
+  full_join(unit_price_import, by =c("Country","Product_Label","year")) %>% select(Country,Product_Label,year,Export_Unit_Price,Import_Unit_Price=Unit_Price) %>%
+  mutate(Ratio=Import_Unit_Price/Export_Unit_Price)
+melted_data <- joint_table %>% melt(id=c("Country","Product_Label","year","Ratio")) %>% rename("type"=variable) %>% 
+  filter(value  >0 & Ratio >0 & Ratio !=Inf ) #& Ratio <=1000 & value <=10000)  
+
+melted_data <- melted_data %>% mutate(Bins=0)
+melted_data$Bins <- cut(melted_data$Ratio, breaks=c(1,10,20,30,40,50,60,70,80,90,100,1000), labels=c("1-10","11-20","21-30","31-40","41-50","51-60","61-70","71-80","81-90","91-100","100+"))
+melted_data <- melted_data %>% filter((!is.na(Bins) & Bins!="1-10" &  Bins!="11-20" ) ) %>%  
+  select(Country,Product_Label, year, Ratio, Bins) 
+melted_data <- distinct(melted_data)
+
+ # &  Bins!="21-30"
+```
+
+
+```{r, fig.align="center", fig.height=7, fig.width=10}
+
+ggplot(melted_data, aes(Bins)) + 
+  geom_bar(aes(fill=year), width = 0.5) + 
+  
+  facet_wrap(~Country, scales = "free_x") +
+  labs(title="Number of Products according to ImportUnitPrice/ExportUnitPrice higher than 20 times",
+       y="Number of Products",
+       x="Bins of Ratio of ImportUnitPrice over ExportUnitPrice") +
+  theme(axis.text.x = element_text(angle=90))
+```
+
+As seen in the graph;
+
+* France, Germany, UK and US are the strongest countries in terms of buying products from Turkey, adding value to these products and selling back to Turkey.
+
+In order to examine the details, we builded ***[Shiny](https://groupfour.shinyapps.io/tradeOrgProUnitP/)*** app.
+
+* xxx
+
+* xxx
+
+* xxx
+
+
+
 ## Conclusion
 
 
@@ -905,6 +967,10 @@ Besides, there is not a direct correlation between BIST100 index and Trade Defic
 
 
 ## References
-
-
+[TradeMap](https://trademap.org/Index.aspx)
+[TCMB](http://tcmb.gov.tr)
+[TUIK](http://www.tuik.gov.tr/)
+[Top 50 ggplot2 Visualizations](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
+[R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)
+[R-statistics blog](https://www.r-statistics.com/tag/transpose/)
 
