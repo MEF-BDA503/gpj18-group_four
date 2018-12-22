@@ -1,13 +1,12 @@
 ---
 title: "Analysis of Turkey's Trade with Selected Countries"
 author: "Group Fou\\*R*"
-date: Dec 26^th^, 2018
-output: 
+date: "Dec 26^th^, 2018"
+output:
   ioslides_presentation:
-    widescreen: true
-    smaller: true
+    smaller: yes
     template: quarterly-report.html
-    
+    widescreen: yes
 logo: channel4_logo.jpg
 ---
 
@@ -27,6 +26,17 @@ library(lubridate)
 library(plotrix)
 library(treemap)
 ```
+
+## Team Members & Abstract
+
+* [Busra Koc](https://mef-bda503.github.io/pj18-busraakoc/) 
+* [Emre Kemerci](https://mef-bda503.github.io/pj18-EmreKemerci/)
+* [Muharrem Cakir](https://mef-bda503.github.io/pj18-muharremcakir81/)
+* [Omer Bayir](https://mef-bda503.github.io/pj18-omerbayir/)
+* [Salih Ucar](https://mef-bda503.github.io/pj18-ucarsal/)
+
+
+In this term project, trade statistics data of Turkey against the G7 countries and 3 more countries (Russia, India, China) is analysed. The aim of the project is to analyze Turkey's export and import characteristics by product groups considering the trade value and quantities.
 
 
 ## Explanation of Raw Data
@@ -440,7 +450,7 @@ Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrg)***
 
 
 
-## Analysis of Trade Deficit by Countries and Years
+## Analysis | Trade Deficit by Countries and Years
 
 ```{r, fig.align='center'}
 export_Product_Group <- export_jTableMELTED%>%
@@ -473,5 +483,127 @@ ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) +
   coord_flip()+
   theme(legend.position = "top")
 ```
+
+## Analysis | Countries Effect on Trade Deficit
+
+```{r , fig.align="center"}
+#Normalized of Average Values for five years
+Normalized_Values_By_Country <- Export_Import_JTable %>%
+  #filter (year == 2017)%>%
+  group_by(Country)%>%
+  summarize (Net_Value = mean(Export_Value - Import_Value))%>%
+  mutate(normalized_Net_value =  round((Net_Value  - mean(Net_Value))/sd(Net_Value ),2)) %>%
+  mutate(value_Net_type =  ifelse(normalized_Net_value < 0, "below", "above"))
+
+#Diverging Bars for normalized_Export_value
+ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , label=normalized_Net_value)) + 
+  geom_bar(stat='identity', aes(fill=value_Net_type), width=.5)  +
+  scale_fill_manual(name="Normalised Value", 
+                    labels = c("Above Average", "Below Average"), 
+                    values = c("above"="seagreen1", "below"="Red")) +  
+  labs(subtitle="Normalised Net Value for 5 years by Country'", 
+       title= "Diverging Bars") + 
+  coord_flip()
+```
+<div class="centered" class="red2">
+Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrgProAnly/)***
+</div>
+
+
+## Analysis | Correlation of Trade Deficit with FX Rate and BIST100 index
+
+```{r, fig.align="center"}
+fileUSD= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/EVDS.xlsx"
+usdR <- read_excel(fileUSD, col_names=FALSE, skip=1)
+
+
+colnames(usdR) <- c("DateR","ExchangeRate")
+usd <- na.omit(usdR)
+remove(usdR)
+
+usdN<-usd %>% mutate(Date=dmy(DateR))
+usdM<- usdN %>% group_by(year=year(Date)) %>% summarise(Rate=mean(ExchangeRate)*10000000)
+
+
+fileBIST= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/BIST100.xlsx"
+bist100R <- read_excel(fileBIST, col_names=FALSE, skip=1)
+
+
+colnames(bist100R) <- c("Date",	"Year","Value",	"Açılış",	"Yüksek",	"Düşük",	"Hac.",	"Fark %")
+bist100 <- bist100R  %>% select(Date,Year,Value) %>% 
+  group_by(Year) %>% 
+  summarise(Value = mean(Value)*1000)
+
+sumImport<- import_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
+sumExport<- export_jTable %>% group_by(Country) %>% summarise(Value_2013=sum(Value_2013),Value_2014=sum(Value_2014),Value_2015=sum(Value_2015),Value_2016=sum(Value_2016),Value_2017=sum(Value_2017))
+joinedTableDeficit<-sumExport %>%  inner_join(sumImport,by="Country") %>%
+  mutate(Value_2013=Value_2013.y-Value_2013.x,Value_2014=Value_2014.y-Value_2014.x, Value_2015=Value_2015.y-Value_2015.x, Value_2016=Value_2016.y-Value_2016.x,
+         Value_2017=Value_2017.y-Value_2017.x) %>%
+  select(Country, Value_2013, Value_2014, Value_2015, Value_2016, Value_2017)
+
+joinedTableDeficitMelt <- melt(joinedTableDeficit, id = c("Country"))
+deficitPerCountry<-joinedTableDeficitMelt %>% mutate(year = case_when( variable == "Value_2013" ~ 2013,
+                                                                       variable == "Value_2014" ~ 2014,
+                                                                       variable == "Value_2015" ~ 2015,
+                                                                       variable == "Value_2016" ~ 2016,
+                                                                       variable == "Value_2017" ~ 2017)) %>%
+  select(Country,year,value)
+
+deficitPerYear <- deficitPerCountry %>%
+  group_by(year) %>% summarise(value=sum(value))
+
+
+ggplot() + 
+  geom_line(data=usdM,aes(x=year, y=Rate,group = 1, colour="USD_TL_Rate"))+
+  geom_line(data=deficitPerYear,aes(x=year, y=value,group = 1, colour="Trade_Deficit"))+
+  geom_line(data=bist100,aes(x=Year, y=Value,group = 1,colour="BIST100_Index")) +
+  scale_colour_manual(name="Indicators",values=c(USD_TL_Rate="red", Trade_Deficit="blue", BIST100_Index="purple"))
+  
+```
+
+## Analysis | Analysis of the Import Unit Prices and Export Unit Prices
+
+```{r, fig.align="center", fig.height=4.5, fig.width=10}
+
+unit_price_import <- import_jTableMELTED %>% select(Country,Product_Label, X__2 ,Product_Label, Product_Label, Unit, Quantity, year, Values) %>% 
+  mutate(Unit_Price = Values/Quantity)
+unit_price_export <- export_jTableMELTED %>% select(Country,Product_Label, X__2 ,Product_Label, Product_Label, Unit, Quantity, year, Values) %>% 
+  mutate(Unit_Price = Values/Quantity)
+
+unit_price_import <- unit_price_import %>% mutate(type="Import") 
+unit_price_export <- unit_price_export %>% mutate(type="Export")
+
+joint_table <- unit_price_export %>% select(Country,Product_Label,year,Export_Unit_Price=Unit_Price) %>% 
+  full_join(unit_price_import, by =c("Country","Product_Label","year")) %>% select(Country,Product_Label,year,Export_Unit_Price,Import_Unit_Price=Unit_Price) %>%
+  mutate(Ratio=Import_Unit_Price/Export_Unit_Price)
+melted_data <- joint_table %>% melt(id=c("Country","Product_Label","year","Ratio")) %>% rename("type"=variable) %>% 
+  filter(value  >0 & Ratio >0 & Ratio !=Inf ) #& Ratio <=1000 & value <=10000)  
+
+melted_data <- melted_data %>% mutate(Bins=0)
+melted_data$Bins <- cut(melted_data$Ratio, breaks=c(1,10,20,30,40,50,60,70,80,90,100,1000), labels=c("1-10","11-20","21-30","31-40","41-50","51-60","61-70","71-80","81-90","91-100","100+"))
+melted_data <- melted_data %>% filter((!is.na(Bins) & Bins!="1-10" &  Bins!="11-20" &  Bins!="21-30") ) %>%  
+  select(Country,Product_Label, year, Ratio, Bins) 
+melted_data <- distinct(melted_data)
+
+ggplot(melted_data, aes(Bins)) + 
+  geom_bar(aes(fill=year), width = 0.5) + 
+  
+  facet_wrap(~Country, scales = "free_x") +
+  labs(title="Number of Products whose ImportUnitPrice/ExportUnitPrice ratio more than 30",
+       y="Number of Products",
+       x="Bins of Ratio of ImportUnitPrice over ExportUnitPrice") +
+  theme(axis.text.x = element_text(angle=90))
+```
+<div class="centered" class="red2">
+Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrgProUnitP/)***
+</div>
+
+
+## Analysis | K-Means Clustering
+
+
+
+## Conclusion
+
 
 
