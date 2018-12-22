@@ -1,0 +1,13 @@
+name: tradeOrgProAnly
+title: tradeOrgProAnly
+username:
+account: groupfour
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 617965
+bundleId: 1778808
+url: https://groupfour.shinyapps.io/tradeOrgProAnly/
+when: 1545427734.29737
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Analysis_Data_Muh.Rmd|Analysis_Data_Muh_Clustering.Rmd|endeksOmer.R|excel file birleþtirme temizleme duzenleme ve rds olarak kaydetme.R|proje.R|projeBusra.R|ProjeBusra_2.R|Project_Salih.R|projeEMRE.R|projeMUH.R|RDS dosyalarýný okuma kodu.R|termProject.R|termProjectv2.R|termProjectv3.R
