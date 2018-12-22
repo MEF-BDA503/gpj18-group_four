@@ -1,19 +1,18 @@
 ---
 title: "Explanatory Data Analysis of Trade Statistics of Turkey"
-subtitle: "MEF University - BDA 503 Essentials of Data Analytics - Fall 2018 - Group Fou\\*R* Term Project"
-date: "December 2018"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     toc: true
-    #toc_float:
-     # collapsed: true
-      #smooth_scroll: true
-    number_sections: false
-    df_print: paged
     code_folding: hide
+    df_print: paged
+    number_sections: no
     theme: journal
-    #highlight: tango
-
+    toc: yes
+date: "December 2018"
+subtitle: MEF University - BDA 503 Essentials of Data Analytics - Fall 2018 - Group
+  Fou\*R* Term Project
 ---
 
 ```{r setup, include=FALSE}
