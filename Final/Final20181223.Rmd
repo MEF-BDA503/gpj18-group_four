@@ -960,12 +960,12 @@ In order to examine the details, we builded ***[Shiny](https://groupfour.shinyap
 
 ## K-Means Clustering for Value of Turkey Exports on Products
 
-In order to see how products, which is exported to Turkey, cluster, we implemented k-means clustering method after scaling the values  
+In order to see the segmentation of exported products by Turkey considering their share in total export value, we implemented k-means clustering method after scaling the export values of each product.  
 
 To determine optimal cluster number, we checked Elbow, Silhoutte and Gap Statistics methods and also we draw distance matrix for products according to export values for 5 years.
 
 
-```{r, fig.align="center"}
+```{r, fig.align="center", fig.height=5 , fig.width=8}
 product_year<-export_Product_Group %>%
 filter(Export_Value > 0) %>%
 group_by(Product_Group_Name,year)%>%
@@ -993,6 +993,10 @@ product_Cluster2 <- scale(product_Cluster2)
 distance <- get_dist(product_Cluster2)
 fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
 
+
+```
+
+```{r, fig.align="center", fig.height=4 , fig.width=10}
 #Determine optimal cluster with Elbow Method
 set.seed(11)
 Elbow <- fviz_nbclust(product_Cluster2, kmeans, method = "wss")
@@ -1012,10 +1016,11 @@ grid.arrange(Elbow, Silhoutte, GapStat, nrow = 1)
 
 ```
 
+
 It looks like it is better to cluster the data into 2, 3 or 4. So we computed the k-means with 2, 3 and 4 cluster as seen below.
 
 
-```{r, fig.align="center"}
+```{r, fig.align="center", fig.height=7 , fig.width=10}
 
 # Compute k-means with 2,3 and 4 clusters 
 k1 <- kmeans(product_Cluster2, centers = 2, nstart = 25)
@@ -1030,7 +1035,7 @@ k3p <- fviz_cluster(k3, data = product_Cluster2, geom = "point") + ggtitle("k = 
 
 grid.arrange(k1p, k2p, k3p, nrow = 3)
 
-fviz_cluster(k3, data = product_Cluster2) + ggtitle("k = 4")
+
 
 #cluster: A vector of integers (from 1:k) indicating the cluster to which each point is allocated.
 #centers: A matrix of cluster centers.
@@ -1042,6 +1047,10 @@ fviz_cluster(k3, data = product_Cluster2) + ggtitle("k = 4")
 
 ```
  
+```{r, fig.align="center", fig.height=8 , fig.width=15}
+fviz_cluster(k3, data = product_Cluster2) + ggtitle("k = 4")
+```
+
 With 4 clusters, it is seen that;
 
 * Vehicles other than railway can be classified as a group - the export products we spent too much money  
@@ -1086,4 +1095,6 @@ As a result of descriptive analysis of Turkey's trade with G7 countries besides 
 [R-statistics blog](https://www.r-statistics.com/tag/transpose/)
 
 [UC Business Analytics R Programming Guide](https://uc-r.github.io/kmeans_clustering#silo)
+
+[r-statistics.co](http://r-statistics.co/)
 
