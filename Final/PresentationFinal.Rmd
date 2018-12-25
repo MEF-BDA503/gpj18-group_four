@@ -8,6 +8,7 @@ output:
     template: quarterly-report.html
     widescreen: yes
 logo: channel4_logo.jpg
+
 ---
 
 ```{r setup, include=FALSE}
@@ -49,9 +50,13 @@ A clear understanding of the data to see if we can locate useful insights about 
 
 </div>
 
-## Explanation of Raw Data
+## Explanation of Raw Data and Data Preparation
 
-- 10 countries’ trade data against Turkey from [Trademap.org](https://trademap.org/Index.aspx) as 4 seperate excel tables, Export&Import Quantity and Export&Import Values
+- 10 countries’ trade data against Turkey are taken from [Trademap.org](https://trademap.org/Index.aspx) as 4 seperate excel tables, Export&Import Quantity and Export&Import Values
+
+- Quantity and Value tables joined following the binding operation of 10 countries tables. Besides, 2 digit product code table have been joined.
+
+- Same type of variables collated to one and "years"" melted to prevent repetition of quantity and value variables. 
 
 ```{r, include=FALSE}
 PATH <-"C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/Raw Data"
@@ -98,22 +103,18 @@ export_value_dataset$Product_Code<- gsub("'", "",export_value_dataset$Product_Co
 
 
 
-```{r, fig.align='center'}
+```{r, fig.align='center', include= FALSE}
 glimpse(export_quantity_dataset)
 
 ```
 
 
-
-## Explanation of Raw Data
-
-
-```{r, fig.align='center'}
+```{r, fig.align='center', include=FALSE}
 
 glimpse(export_value_dataset)
 ```
 
-## Data Preparation | Joining Quantity, Value Data, Product Labels with 2 Digit Product Codes 
+
 
 ```{r, include=FALSE}
 #read the ProductCodes excel
@@ -140,11 +141,11 @@ export_jTable <- export_jTable %>% mutate(PcodeTwo=substr(Product_Code,1,2))
 export_jTable <- left_join(export_jTable,prdCode,by =c("PcodeTwo"="X__1") )
 ```
 
-```{r, fig.align='center'}
+```{r, fig.align='center', fig.height=5, fig.width=4.5, include=FALSE}
 glimpse(export_jTable)
 ```
 
-## Data Preparation | Collating Same Type of Variables
+
 
 ```{r, include=FALSE}
 export_jTable <- export_jTable %>% filter(!grepl("TOTAL", Product_Code))
@@ -241,9 +242,11 @@ treemap(pim1_table,index = c("Country"),vSize = "perc_count",vColor = "perc_coun
 
 </div>
 
-## Analysis | Breakdown of Total Export and Import of Turkey Over Countries
+## Analysis | Breakdown of Total Export & Import
 
-```{r, fig.align='center'}
+<div class="columns-2">
+
+```{r, fig.align='center', fig.height=5, fig.width=5}
 # Export Values in $ 
 ttable=export_jTableMELTED%>%group_by(Country,year)%>%
   summarise(co_total=sum(Values,na.rm = TRUE))%>%
@@ -255,20 +258,22 @@ vtable=import_jTableMELTED%>%group_by(Country,year)%>%summarise(co_total=sum(Val
 
 a<-ggplot(data=vtable, aes(x=Country, y=co_total,fill=year)) +
   geom_bar(stat="identity", position=position_dodge(), colour="black")+
-  ggtitle("Import Values")
+  ggtitle("Import Values") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 b<-ggplot(data=ttable, aes(x=Country, y=co_total,fill=year)) +
-  geom_bar(stat="identity", position=position_dodge(), colour="black")+ggtitle("Export Values")
+  geom_bar(stat="identity", position=position_dodge(), colour="black")+ggtitle("Export Values") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
 
 grid.arrange(a,b,  nrow = 2)
 ```
 
-## Analysis | Year over Year Changes in Trade Values
 
-```{r, message=FALSE, fig.align='center'}
+
+```{r, message=FALSE, fig.align='center', fig.height=5, fig.width=5}
 tableExport <- export_jTableMELTED %>% 
   group_by(Country, year) %>%
   summarise(totalExpV=sum(Values,na.rm=TRUE)) %>%
@@ -296,9 +301,19 @@ ggplot(table, aes(x=year)) +
     shape=c("Trade Type"))
 ```
 
-## Analysis | Year over Year Changes in Trade Values - Exports to Canada
+</div>
 
-```{r, fig.align='center', fig.height=5, fig.width=10}
+## Analysis | Year over Year Changes in Trade Values - Export & Import - Canada {#slide36}
+
+<style> 
+  #slide36 > p { 
+    margin-top: -50px; 
+  } 
+</style>
+
+<div class="columns-2">
+
+```{r, fig.align='center', fig.height=5, fig.width=5}
 # Canada and Russia significantly deviates. Investigate these countries in detail with traded products
 
 # First Canada
@@ -339,9 +354,8 @@ ggplot(summarytableCanadaEx, aes(x=substr(X__2, start = 1, stop = 30))) +
        Color=c("Year"))
 ```
 
-## Analysis | Year over Year Changes in Trade Values - Imports From Canada
 
-```{r, fig.align='center', fig.height=5, fig.width=10}
+```{r, fig.align='center', fig.height=5, fig.width=5}
 # Import Analysis
 
 
@@ -379,9 +393,20 @@ ggplot(summarytableCanadaIm, aes(x=substr(X__2, start = 1, stop = 30))) +
        Color=c("Year"))
 ```
 
-## Analysis | Year over Year Changes in Trade Values - Exports to Russia
+</div>
 
-```{r, fig.align='center', fig.height=5, fig.width=10}
+
+## Analysis | Year over Year Changes in Trade Values - Exports & Imports to Russia {#slide37}
+
+<style> 
+  #slide37 > p { 
+    margin-top: -50px; 
+  } 
+</style>
+
+<div class="columns-2">
+
+```{r, fig.align='center', fig.height=5, fig.width=5}
 summarytableRussianEx <- export_jTableMELTED %>%
   filter(Country=="Russian") %>%
   group_by(X__2, year) %>%
@@ -416,11 +441,7 @@ ggplot(summarytableRussianEx, aes(x=substr(X__2, start = 1, stop = 30))) +
        Color=c("Year"))
 ```
 
-
-## Analysis | Year over Year Changes in Trade Values - Imports From Russia
-
-
-```{r, fig.align='center', fig.height=4.5, fig.width=10}
+```{r, fig.align='center', fig.height=4.5, fig.width=5}
 summarytableRussianIm <- import_jTableMELTED %>%
   filter(Country=="Russian") %>%
   group_by(X__2, year) %>%
@@ -458,11 +479,14 @@ ggplot(summarytableRussianIm, aes(x=substr(X__2, start = 1, stop = 30))) +
 Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrg)***
 </div>
 
+</div>
 
 
-## Analysis | Trade Deficit by Countries and Years
+## Analysis | Trade Deficit and Effects of Countries on Trade Deficit
 
-```{r, fig.align='center'}
+<div class="columns-2">
+
+```{r, fig.align='center', fig.height=4.5, fig.width=6}
 export_Product_Group <- export_jTableMELTED%>%
 group_by(Country,PcodeTwo,X__2,year)%>%
 summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
@@ -494,9 +518,8 @@ ggplot(Net_Value_By_Country, aes(x=year, y=Net_value_K)) +
   theme(legend.position = "top")
 ```
 
-## Analysis | Countries Effect on Trade Deficit
 
-```{r , fig.align="center"}
+```{r , fig.align="center", fig.height=4.5, fig.width=6}
 #Normalized of Average Values for five years
 Normalized_Values_By_Country <- Export_Import_JTable %>%
   #filter (year == 2017)%>%
@@ -519,10 +542,11 @@ ggplot(Normalized_Values_By_Country, aes(x=Country, y=normalized_Net_value , lab
 Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrgProAnly/)***
 </div>
 
+</div>
 
-## Analysis | Correlation of Trade Deficit with FX Rate and BIST100 index
 
-```{r, fig.align="center"}
+
+```{r, fig.align="center", include=FALSE}
 fileUSD= "C:/Users/emrek/Google Drive/BDA/503-EssentialsOfDataAnalytics/GitHub/gpj18-group_four/EVDS.xlsx"
 usdR <- read_excel(fileUSD, col_names=FALSE, skip=1)
 
@@ -609,9 +633,9 @@ Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrgProUnitP/)*
 </div>
 
 
-## K-Means Clustering | Determining Optimal Cluster
 
-```{r, fig.align="center"}
+
+```{r, fig.align="center", include=FALSE}
 product_year<-export_Product_Group %>%
 filter(Export_Value > 0) %>%
 group_by(Product_Group_Name,year)%>%
@@ -658,9 +682,11 @@ grid.arrange(Elbow, Silhoutte, GapStat, nrow = 1)
 
 ```
 
-## K-Means Clustering | Computing K-Means
+## K-Means Clustering
 
-```{r, fig.align="center"}
+<div class="columns-2">
+
+```{r, fig.align="center", fig.height=5.5, fig.width=4}
 
 # Compute k-means with 2,3 and 4 clusters 
 k1 <- kmeans(product_Cluster2, centers = 2, nstart = 25)
@@ -677,36 +703,40 @@ grid.arrange(k1p, k2p, k3p, nrow = 3)
 
 ```
 
-## K-Means Clustering | Computing K-Means
 
-```{r, fig.align="center"}
+```{r, fig.align="center", fig.height=5.5, fig.width=5.5}
 
 fviz_cluster(k3, data = product_Cluster2) + ggtitle("k = 4")
 
 ```
 
+</div>
 
-## Conclusion
+## Conclusion {#slide38}
 
-As a result of descriptive analysis of Turkey's trade with G7 countries besides India, China and Russia, we noted that; 
+<style> 
+  #slide38 > p { 
+    margin-top: -50px; 
+  } 
+</style>
 
-* Turkeys’ biggest trade partners are China, Germany, Russia and US at import side while they are Germany, UK, Italy and USA at export side. 
-* Germany and USA are the 2 top countries seen in both directions of trade.
-* Generally we have fluctuated trade trend with Russia.
-* Turkey's trade deficit analyisis gives the results : 
-  + UK gives trade surplus for all years analysed 
-  + China, Russia, Germany and USA have the most significant effect on trade deficit
-  + Trade deficit has negatively correlated with USD/TL rate between 2013 and 2016 but there is no relation BIST100 index.
-  + Turkey's trade deficit comes from China, Russia, Germany countires and most of deficit comes from products below :
-      + Electrical machinery, equipments and machinery, mechanical appliances
-      + Mineral fuels, mineral oils and products of their distillation constitute 
-      + Vehicles other than railway and mechanical and electronical machinery and equipments
 
-## Conclusion
+<font size="3">As a result of descriptive analysis of Turkey's trade with G7 countries besides India, China and Russia, we noted that;</font>
 
-* As a result of clustering exported products;
-  + Vehicles other than railway is the group we spent the most money
-  + Second group consist of Machinery, mechanical appliances, electronical machinery- equipments and clothing while third one includes iron, steel, pearls, ores etc.
+* <font size="3">Turkeys’ biggest trade partners are China, Germany, Russia and US at import side while they are Germany, UK, Italy and USA at export side.</font> 
+* <font size="3">Germany and USA are the 2 top countries seen in both directions of trade.</font>
+* <font size="3">Generally we have fluctuated trade trend with Russia.</font>
+* <font size="3">Turkey's trade deficit analyisis gives the results :</font> 
+  + <font size="2">UK gives trade surplus for all years analysed</font> 
+  + <font size="2">China, Russia, Germany and USA have the most significant effect on trade deficit</font>
+  + <font size="2">Trade deficit has negatively correlated with USD/TL rate between 2013 and 2016 but there is no relation BIST100 index.</font>
+  + <font size="2">Turkey's trade deficit comes from China, Russia, Germany countires and most of deficit comes from products below :</font>
+      + <font size="2">Electrical machinery, equipments and machinery, mechanical appliances</font>
+      + <font size="2">Mineral fuels, mineral oils and products of their distillation constitute</font> 
+      + <font size="2">Vehicles other than railway and mechanical and electronical machinery and equipments</font>
+* <font size="3">As a result of clustering exported products;</font>
+  + <font size="2">Vehicles other than railway is the group we spent the most money</font>
+  + <font size="2">Second group consist of Machinery, mechanical appliances, electronical machinery- equipments and clothing while third one includes iron, steel, pearls, ores etc.</font>
   
   
 ## Thanks - Q & A
