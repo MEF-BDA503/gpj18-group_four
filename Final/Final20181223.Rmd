@@ -960,7 +960,7 @@ In order to examine the details, we builded ***[Shiny](https://groupfour.shinyap
 
 ## K-Means Clustering for Value of Turkey Exports on Products
 
-In order to see the segmentation of exported products by Turkey considering their share in total export value, we implemented k-means clustering method after scaling the export values of each product.  
+In order to see the segmentation of exported products from Turkey considering their share in total export value, we implemented k-means clustering method after scaling the export values of each product.  
 
 To determine optimal cluster number, we checked Elbow, Silhoutte and Gap Statistics methods and also we draw distance matrix for products according to export values for 5 years.
 
@@ -1053,11 +1053,11 @@ fviz_cluster(k3, data = product_Cluster2) + ggtitle("k = 4")
 
 With 4 clusters, it is seen that;
 
-* Vehicles other than railway can be classified as a group - the export products we spent too much money  
+* Vehicles other than railway can be classified as a group - the export products we earned the most money  
 
-* Machinery, mechanical appliances, electronical machinery and equipments, clothing is another classification - top2 products in terms of money spent
+* Machinery, mechanical appliances, electronical machinery and equipments, clothing is another classification - top2 products in terms of money earned
 
-* Third class consist of iron, steel, pearls, ores etc. and this class slightly differs from 4th group in terms of money spent
+* Third class consist of iron, steel, pearls, ores etc. and this class slightly differs from 4th group
 
 
 ## Conclusion
@@ -1076,7 +1076,7 @@ As a result of descriptive analysis of Turkey's trade with G7 countries besides 
       + Mineral fuels, mineral oils and products of their distillation constitute 
       + Vehicles other than railway and mechanical and electronical machinery and equipments
 * As a result of clustering exported products;
-  + Vehicles other than railway is the group we spent the most money
+  + Vehicles other than railway is the group we earned the most money
   + Second group consist of Machinery, mechanical appliances, electronical machinery- equipments and clothing while third one includes iron, steel, pearls, ores etc.
 
 
