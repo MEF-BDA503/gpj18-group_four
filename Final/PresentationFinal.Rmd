@@ -486,7 +486,7 @@ Discover more with ***[Shiny](https://groupfour.shinyapps.io/tradeOrg)***
 
 <div class="columns-2">
 
-```{r, fig.align='center', fig.height=4.5, fig.width=6}
+```{r, fig.align='center', fig.height=4.5, fig.width=5}
 export_Product_Group <- export_jTableMELTED%>%
 group_by(Country,PcodeTwo,X__2,year)%>%
 summarize(Quantity = sum(Quantity), Values = sum(Values))%>%
